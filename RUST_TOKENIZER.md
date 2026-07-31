@@ -105,7 +105,7 @@ User Input: "Hello, how are you today?"
 
 ```bash
 # Clone the repository
-git clone https://github.com/dark0venom/dLLM.git
+git clone https://github.com/dllm-project/dLLM.git
 cd dLLM/tokenizer
 
 # Build in release mode with SIMD optimizations
@@ -627,7 +627,7 @@ println!("{:#?}", encoding);
 
 ```bash
 # Clone and build
-git clone https://github.com/dark0venom/dLLM.git
+git clone https://github.com/dllm-project/dLLM.git
 cd dLLM/tokenizer
 
 # Run tests with coverage

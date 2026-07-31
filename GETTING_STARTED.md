@@ -10,7 +10,7 @@ dLLM uses a two-tier architecture:
 
 ```bash
 # Clone the repository
-git clone https://github.com/dark0venom/dLLM.git
+git clone https://github.com/dllm-project/dLLM.git
 cd dLLM
 
 # Install Python dependencies

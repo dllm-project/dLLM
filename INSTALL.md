@@ -69,7 +69,7 @@ cargo build --release --features avx2
 
 ```bash
 # Clone the repository
-git clone https://github.com/dark0venom/dLLM.git
+git clone https://github.com/dllm-project/dLLM.git
 cd dLLM
 
 # Install Python dependencies
@@ -98,7 +98,7 @@ sudo apt update && sudo apt install -y \
     libboost-all-dev libnuma-dev python3-dev
 
 # Clone repository
-git clone https://github.com/dark0venom/dLLM.git
+git clone https://github.com/dllm-project/dLLM.git
 cd dLLM
 
 # Build C++ backend
@@ -119,7 +119,7 @@ pip install .
 
 ```cmd
 :: Using Visual Studio Command Prompt
-git clone https://github.com/dark0venom/dLLM.git
+git clone https://github.com/dllm-project/dLLM.git
 cd dLLM
 mkdir build && cd build
 
