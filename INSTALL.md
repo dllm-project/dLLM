@@ -2,14 +2,32 @@
 
 ## System Requirements
 
-### Minimum Requirements
+### Minimum Requirements (CPU)
 - **CPU**: Intel Core i5 3rd gen (SSE4.2) or AMD equivalent
 - **RAM**: 8 GB
 - **Storage**: 10 GB free space
 - **Network**: Gigabit Ethernet (1 Gbps)
 - **Python**: 3.8+
 
-### Recommended Requirements (for AVX512)
+### GPU Minimum Requirements
+
+#### NVIDIA GPUs
+- **CUDA Version**: 11.4+
+- **Compute Capability**: 6.0+ (Pascal and newer)
+- **GPU Drivers**: NVIDIA Driver 470.82.01+
+- **RAM**: 4 GB VRAM minimum, 8 GB recommended
+
+#### AMD/ATI GPUs
+- **ROCm Version**: 5.3+
+- **Hardware**: GCN 1st gen or newer (RX 400 series+)
+- **RAM**: 4 GB VRAM minimum, 8 GB recommended
+
+#### Intel GPUs
+- **OneAPI Version**: 2023.1+
+- **Hardware**: Gen9+ graphics (Iris Xe or Arc A-Series)
+- **RAM**: 4 GB VRAM minimum, 8 GB recommended
+
+### Recommended Requirements (for AVX512 CPU)
 - **CPU**: Intel Ice Lake/Ivy Bridge-EP or AMD Zen4+ with AVX-512
 - **RAM**: 64 GB+
 - **Storage**: NVMe SSD, 50 GB free space
@@ -65,7 +83,37 @@ cargo build --release --features avx2
 - `cpuid` (Linux) or `wmic cpu get name` (Windows)
 - Check for instruction set flags in `/proc/cpuinfo`
 
-## Quick Start
+## GPU Hardware Detection
+
+### Check GPU Devices
+
+```bash
+# NVIDIA CUDA
+nvidia-smi
+
+# AMD ROCm
+rocm-smi
+
+# Intel OneAPI
+intel_gpu_top
+
+# OpenCL (universal fallback)
+clinfo
+```
+
+### Verify GPU Support
+```bash
+# Test CUDA availability
+nvcc --version
+
+# Test HIP availability  
+hipcc --version
+
+# Test SYCL availability
+dpcpp --version
+```
+
+## Quick Start - CPU Mode
 
 ```bash
 # Clone the repository
@@ -87,9 +135,64 @@ cd ../src/python
 python server.py
 ```
 
+## GPU Installation (Optional)
+
+### Ubuntu/Debian - NVIDIA CUDA
+```bash
+# Install CUDA 11.8
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+wget https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda-repo-ubuntu2204-11-8-local_11.8.0-520.61.05-1_amd64.deb
+sudo dpkg -i cuda-repo-ubuntu2204-11-8-local_11.8.0-520.61.05-1_amd64.deb
+sudo apt-key add /var/cuda-repo-ubuntu2204-11-8-local/cuda-archive-keyring.gpg
+sudo apt update
+sudo apt install -y cuda-toolkit-11-8
+
+# Set environment variables
+export CUDA_HOME=/usr/local/cuda-11.8
+export PATH=$CUDA_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+```
+
+### Ubuntu/Debian - AMD ROCm
+```bash
+# Add ROCm repository
+wget https://repo.radeon.com/amdgpu-install/latest/ubuntu/deb/amdgpu-install_7.0.70000-1_all.deb
+sudo dpkg -i amdgpu-install_7.0.70000-1_all.deb
+
+# Install ROCm with HIP support
+sudo apt update
+sudo apt install -y rocm-hip-sdk rocm-dev
+
+# Add user to video group (required for GPU access)
+sudo usermod -a -G video $USER
+```
+
+### Ubuntu/Debian - Intel OneAPI
+```bash
+# Install OneAPI Base Toolkit
+wget https://apt.repos.intel.com/intel-gpu-setup.pub
+sudo apt-key add intel-gpu-setup.pub
+echo "deb [signed-by=intel-gpu-setup.pub] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+
+sudo apt update
+sudo apt install -y intel-oneapi-dev-util intel-oneapi-compiler-dpcpp-cpp
+```
+
+### Windows - NVIDIA CUDA
+1. Download CUDA Toolkit 11.8 from [NVIDIA website](https://developer.nvidia.com/cuda-toolkit)
+2. Run installer with Developer Drivers option
+3. Set environment variables:
+   ```
+   CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
+   PATH=%CUDA_PATH%\bin;%PATH%
+   ```
+
+**Note:** GPU support is optional. CPU-only mode works without any GPU drivers installed.
+
 ## Build from Source
 
-### Linux/macOS Build Steps
+### Linux/macOS Build Steps (CPU)
 
 ```bash
 # Install C++ dependencies (Ubuntu/Debian)
@@ -101,7 +204,7 @@ sudo apt update && sudo apt install -y \
 git clone https://github.com/dllm-project/dLLM.git
 cd dLLM
 
-# Build C++ backend
+# Build C++ backend (CPU only)
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
       -DUSE_SSE42=ON \
@@ -113,6 +216,17 @@ make -j$(nproc)
 
 # Install Python package
 pip install .
+```
+
+### Linux/macOS Build Steps (GPU with CUDA)
+```bash
+# Build C++ backend with CUDA support
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DUSE_CUDA=ON \
+      -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-11.8 \
+      ..
+make -j$(nproc)
 ```
 
 ### Windows Build Steps
@@ -192,8 +306,7 @@ g++ -O3 tokenizer_bridge.cpp \
 
 ## Configuration
 
-### Basic Configuration (Single Node)
-
+### Basic Configuration (Single Node - CPU)
 ```yaml
 # config.yaml
 python_frontend:
@@ -211,6 +324,50 @@ hardware:
 inference:
   max_context_length: 2048
   batch_size: auto
+```
+
+### GPU Configuration (NVIDIA)
+```yaml
+# config.yaml with GPU support
+python_frontend:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+
+backend:
+  cpp_library_path: "./build/libdllm.so"
+  gpu_backend: cuda         # cuda, hip, sycl
+  device_id: 0              # GPU device ID (0 = first GPU)
+
+gpu:
+  enabled: true
+  memory_pool_size: 8GB
+  batch_size: auto
+
+inference:
+  max_context_length: 2048
+```
+
+### AMD/ATI GPU Configuration
+```yaml
+backend:
+  cpp_library_path: "./build/libdllm.so"
+  gpu_backend: hip          # ROCm/HIP backend
+  
+gpu:
+  enabled: true
+  device_id: all            # Use all available GPUs
+```
+
+### Intel GPU Configuration
+```yaml
+backend:
+  cpp_library_path: "./build/libdllm.so"
+  gpu_backend: sycl         # OneAPI/SYCL backend
+
+gpu:
+  enabled: true
+  device_id: 0
 ```
 
 ### Distributed Configuration
@@ -269,7 +426,44 @@ sysctl -a | grep machdep.cpu.features
 sysctl -a | grep machdep.cpu.leaf7_features
 ```
 
-## Docker Installation
+### Check GPU Features (Linux)
+
+#### NVIDIA CUDA
+```bash
+# List all GPUs with driver info
+nvidia-smi
+
+# Query compute capability
+nvidia-smi --query-gpu=name,compute_cap --format=csv
+```
+
+#### AMD ROCm
+```bash
+# List available GPUs
+rocm-smi
+
+# Check GPU info
+rocminfo | grep -A 5 "GPU"
+```
+
+#### Intel OneAPI
+```bash
+# List GPU devices
+intel_gpu_top
+
+# Check GPU information
+lspci | grep -i vga
+```
+
+### GPU Detection on macOS
+- **Note:** macOS uses Metal for Apple Silicon GPUs via ROCm compatibility layer.
+- Requires macOS 12+ and Xcode 14+
+```bash
+# Check GPU model
+system_profiler SPHardwareDataType | grep "Chip\|GPU"
+```
+
+## Docker Installation with CPU Only (Default)
 
 ### Build Docker Image
 
@@ -299,16 +493,63 @@ docker build -t dllm:latest .
 docker run --rm -p 8000:8000 dllm:latest
 ```
 
+### Docker with NVIDIA GPU Support
+
+```dockerfile
+FROM ubuntu:22.04
+
+# Install NVIDIA Container Toolkit prerequisites
+RUN apt update && apt install -y \
+    build-essential cmake git libssl-dev \
+    libboost-all-dev libnuma-dev python3-dev \
+    curl gnupg2
+
+# Install CUDA toolkit for GPU support
+RUN curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin \
+    -o /etc/apt/preferences.d/cuda-repository-pin-600 && \
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub && \
+    add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /" && \
+    apt update && apt install -y cuda-toolkit-11-8
+
+WORKDIR /app
+COPY . .
+
+# Build C++ backend with GPU support
+RUN mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DUSE_CUDA=ON .. && \
+    make -j$(nproc)
+
+# Install Python dependencies
+RUN pip install fastapi uvicorn pydantic numpy
+
+CMD ["python", "src/python/server.py"]
+```
+
+```bash
+# For NVIDIA GPU support, use nvidia-container-toolkit
+docker run --gpus all -p 8000:8000 dllm:latest
+```
+
 ## Running the API Server
 
-### Single Node Mode
+### Single Node Mode (CPU)
 
 ```bash
 cd src/python
 python server.py --config ../config.yaml
 ```
 
-### Distributed Mode
+### GPU Mode
+
+```bash
+# Use GPU acceleration automatically detected
+python server.py --use-gpu
+
+# Or specify backend explicitly
+python server.py --gpu-backend cuda  # or hip, sycl
+```
+
+### Distributed Mode (CPU or GPU)
 
 ```bash
 # Start on head node
@@ -321,7 +562,7 @@ python server.py \
 
 ## Verification
 
-### Test Build
+### Test Build (CPU)
 
 ```bash
 # Run unit tests
@@ -344,6 +585,19 @@ Optimal instruction set: AVX-512
 Recommended mode: distributed
 ```
 
+### Test GPU Installation
+
+```bash
+# Verify CUDA is accessible
+./build/bin/dllm-gpu-check --backend cuda
+
+# Verify ROCm/HIP is accessible  
+./build/bin/dllm-gpu-check --backend hip
+
+# Verify OneAPI/SYCL is accessible
+./build/bin/dllm-gpu-check --backend sycl
+```
+
 ### Test API Server
 
 ```bash
@@ -355,10 +609,44 @@ curl http://localhost:8000/v1/models
 
 ## Troubleshooting
 
-### "Instruction not supported" Error
+### "Instruction not supported" Error (CPU)
 ```bash
 # Force fallback to lower instruction set
 ./dllm-infer --instruction-set sse42
+```
+
+### CUDA Issues
+**Error: "CUDA driver version is insufficient"**
+```bash
+# Update NVIDIA drivers
+sudo apt update && sudo apt upgrade nvidia-driver-525
+```
+
+**Error: "CUDA out of memory"**
+```yaml
+gpu:
+  memory_pool_size: 4GB  # Reduce pool size
+  batch_size: auto       # Let system determine optimal batch size
+```
+
+### ROCm Issues
+**Error: "ROCm not found"**
+```bash
+# Verify ROCm installation
+/opt/rocm/bin/clinfo --version
+
+# Check GPU visibility
+/opt/rocm/bin/rocm-smi
+```
+
+### OneAPI Issues
+**Error: "SYCL backend unavailable"**
+```bash
+# Verify Intel GPU driver
+sudo apt install intel-opencl-icd
+
+# Check device detection
+intel_gpu_top
 ```
 
 ### Distributed Mode Connection Issues

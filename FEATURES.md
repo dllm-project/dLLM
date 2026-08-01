@@ -36,6 +36,31 @@
 
 ## Hardware Acceleration
 
+### GPU Support (Multi-Vendor)
+dLLM supports GPU acceleration from major vendors:
+
+#### NVIDIA GPUs (CUDA Backend)
+| Feature | Status |
+|---------|--------|
+| CUDA Toolkit | ✓ Supported (11.4+) |
+| Tensor Cores | ✓ Supported |
+| FP16/BF16/Int8 | ✓ Supported |
+| Multi-GPU NVLink | ✓ Supported |
+
+#### AMD/ATI GPUs (ROCm/HIP Backend)
+| Feature | Status |
+|---------|--------|
+| ROCm Stack | ✓ Supported (5.3+) |
+| HIP Compatibility | ✓ Supported |
+| GCN/RDNA Architectures | ✓ Supported |
+
+#### Intel GPUs (OneAPI/SYCL Backend)
+| Feature | Status |
+|---------|--------|
+| OneAPI 2023+ | ✓ Supported |
+| SYCL Support | ✓ Supported |
+| Xe Graphics | ✓ Supported |
+
 ### SSE4.2 Support
 - **Intrinsics**: `_mm_cvtsi128_si32`, `_mm_extract_epi32`
 - **Operations**: String comparison, CRC32
@@ -56,6 +81,12 @@
 - **Operations per cycle**: Up to 16 FP32 operations
 - **Masking**: Full masking support for conditional execution
 - **BFloat16**: Native BFloat16 conversion and operations
+
+### CPU SIMD Backends
+- **SSE4.2** - Streaming SIMD Extensions 4.2 (baseline)
+- **AVX** - Advanced Vector Extensions (~2x SSE4.2)
+- **AVX2** - Advanced Vector Extensions 2 with FMA
+- **AVX-512** - Advanced Vector Extensions 512 (highest performance)
 
 ```cpp
 // AVX512 vectorized matrix multiplication

@@ -40,7 +40,15 @@ The dLLM Rust tokenizer provides:
 - **Zero-copy architecture** with memory-efficient processing (1.1x input size)
 - **Universal compatibility**: Works with all LLM models
 
-### Hardware Acceleration
+### GPU Hardware Support (NEW)
+dLLM now supports multi-vendor GPU acceleration:
+- **NVIDIA GPUs** - CUDA backend with Tensor Cores
+- **AMD/ATI GPUs** - ROCm/HIP backend for GCN/RDNA architectures
+- **Intel GPUs** - OneAPI/SYCL backend for Xe graphics
+
+See [GPU Hardware Support](GPU_HARDWARE_SUPPORT.md) for complete details.
+
+### Hardware Acceleration (CPU)
 - **SSE4.2** - Streaming SIMD Extensions 4.2
 - **AVX** - Advanced Vector Extensions
 - **AVX2** - Advanced Vector Extensions 2
