@@ -105,6 +105,23 @@ tokenizer/
 
 ## Hardware Acceleration Stack
 
+### GPU Backend Support (NEW)
+
+dLLM supports multiple GPU backends for hardware-accelerated inference:
+
+| Feature | CUDA (NVIDIA) | HIP (AMD) | SYCL (Intel) | OpenCL |
+|---------|---------------|-----------|--------------|--------|
+| Device Detection | ✓ | ✓ | ✓ | ✓ |
+| Kernel Execution | ✓ | ✓ | ✓ | ✓ |
+| Memory Management | ✓ | ✓ | ✓ | ✓ |
+| Multi-GPU Support | NVLink | Infinity Fabric | PCIe | PCI/PCIe |
+
+**Backend Selection Priority:**
+1. CUDA (NVIDIA) - Highest priority, best performance
+2. HIP (AMD ROCm) - AMD GPU support with CUDA compatibility
+3. SYCL (Intel OneAPI) - Intel GPU acceleration
+4. OpenCL - Universal fallback for any device
+
 ### CPU Instruction Set Support Matrix
 
 | Feature | SSE4.2 | AVX | AVX2 | AVX-512 |
@@ -122,7 +139,9 @@ tokenizer/
 │              Model Layer (e.g., Transformer)           │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  Layer Input → [SSE4.2 Fallback]                        │
+│  GPU Backend Check → [CUDA/ROCm/SYCL]                   │
+│               ↓                                         │
+│    If CPU fallback: [SSE4.2 Path]                       │
 │               ↓                                         │
 │    If AVX supported: [AVX Optimized Path]               │
 │               ↓                                         │
@@ -131,6 +150,30 @@ tokenizer/
 │    If AVX512 supported: [AVX512 Full Vectorization]     │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
+```
+
+### Hardware Acceleration Stack Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                  Model Inference Layer                   │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│    Request → GPU Backend Detection                       │
+│              ↓                                           │
+│    ┌─────────────┬─────────────┬─────────────┐          │
+│    │  CUDA (NVIDIA) │ HIP (AMD)   │ SYCL (Intel) │         │
+│    │  - Tensor Cores│  - rocBLAS │ - oneDNN   │          │
+│    │  - cuDNN       │  - HIP API │ - oneMKL   │          │
+│    └─────────────┴─────────────┴─────────────┘          │
+│              ↓                                           │
+│         Fallback to CPU                                  │
+│              ↓                                           │
+│    ┌────────┬────────┬────────┬────────┐                │
+│    │ SSE4.2 │  AVX   │  AVX2  │ AVX-512│                │
+│    └────────┴────────┴────────┴────────┘                │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ## Python ↔ C++ Bridge

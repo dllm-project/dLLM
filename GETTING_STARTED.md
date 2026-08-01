@@ -6,7 +6,7 @@ dLLM uses a two-tier architecture:
 - **Python Frontend**: OpenAI-compatible API server (FastAPI)
 - **C++ Backend**: High-performance inference engine with SIMD optimizations
 
-### Step 1: Installation
+### Option 1: CPU Mode (Default)
 
 ```bash
 # Clone the repository
@@ -28,11 +28,47 @@ cd ../src/python
 python server.py
 ```
 
+### Option 2: GPU Mode (NVIDIA/AMD/Intel)
+
+```bash
+# Install GPU drivers and toolkit
+# NVIDIA: CUDA 11.8+, AMD: ROCm 5.3+, Intel: OneAPI 2023.1+
+
+# Build with GPU support
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DUSE_CUDA=ON \      # or USE_HIP=ON, USE_SYCL=ON
+      ..
+make -j$(nproc)
+
+# Start the API server with GPU acceleration
+cd ../src/python
+python server.py --use-gpu
+```
+
+**Note:** See [GPU Hardware Support](GPU_HARDWARE_SUPPORT.md) for complete installation instructions by vendor.
+
 The server will start on `http://0.0.0.0:8000` with:
 - Auto-generated Swagger UI at `/docs`
 - Full OpenAI API compatibility
 
-### Step 2: Test Your Installation
+### Step 1 (CPU): Test Your Installation
+
+Or if using GPU:
+### Step 2 (GPU): Verify GPU Detection
+
+```bash
+# NVIDIA
+nvidia-smi
+
+# AMD ROCm
+rocm-smi
+
+# Intel OneAPI
+intel_gpu_top
+```
+
+### Step 3 (Both): Test Your Installation
 
 ```bash
 # Test models endpoint
@@ -134,8 +170,7 @@ for embedding in response.data:
 
 ## Configuration
 
-### Server Configuration (config.yaml)
-
+### CPU Mode Configuration
 ```yaml
 server:
   host: "0.0.0.0"
@@ -144,14 +179,69 @@ server:
 
 backend:
   cpp_library_path: "./build/libdllm.so"
-  instruction_set: auto
+  instruction_set: auto   # sse42, avx, avx2, avx512
 
 models:
   llama-7b: "/models/llama-7b"
-  gpt2-small: "/models/gpt2-small"
 
 distribution:
-  mode: local  # or distributed
+  mode: local
+```
+
+### GPU Mode Configuration (NVIDIA)
+```yaml
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+
+backend:
+  cpp_library_path: "./build/libdllm.so"
+  gpu_backend: cuda       # cuda, hip, sycl
+  device_id: 0
+
+gpu:
+  enabled: true
+  memory_pool_size: 8GB
+
+models:
+  llama-7b-gpu: "/models/llama-7b"
+
+distribution:
+  mode: local
+```
+
+### GPU Mode Configuration (AMD/ATI)
+```yaml
+backend:
+  gpu_backend: hip        # ROCm/HIP backend
+
+gpu:
+  enabled: true
+  device_id: all          # Use all available GPUs
+```
+
+### GPU Mode Configuration (Intel)
+```yaml
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+
+backend:
+  cpp_library_path: "./build/libdllm.so"
+  gpu_backend: sycl       # OneAPI/SYCL backend
+  device_id: 0
+
+gpu:
+  enabled: true
+  memory_pool_size: 4GB
+
+models:
+  llama-7b-gpu-intel: "/models/llama-7b"
+
+distribution:
+  mode: local
 ```
 
 ### Environment Variables
