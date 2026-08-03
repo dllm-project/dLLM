@@ -105,14 +105,31 @@ jobs:
         docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
         docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} --all-tags
 
-  deploy-node1:
-    needs: [deploy-production]
+  # Deploy to Node 1 (192.168.10.125) with rsync
+  deploy-node1-rsync:
+    needs: [build-linux, build-fedora]
     
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     
     steps:
-    - name: Deploy to production node (192.168.10.125)
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install rsync
+      run: sudo apt-get install -y rsync
+
+    - name: Sync source to Node 1 (AVX2+GPU)
+      uses: appleboy/rsync-action@v1.0.0
+      with:
+        host: 192.168.10.125
+        username: saszel
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: ./
+        target: /home/saszel/dLLM/
+        options: '-avz --delete-excluded --exclude-from=.gitignore'
+
+    - name: Build on Node 1 (AVX2 + GPU)
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: 192.168.10.125
@@ -120,10 +137,95 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           cd /home/saszel/dLLM
-          git pull origin main
-          mkdir -p build && cd build
+          
+          # Build AVX2 + CUDA version
+          mkdir -p build_avx2_gpu && cd build_avx2_gpu
           cmake -DCMAKE_BUILD_TYPE=Release \
+                -DUSE_SSE42=ON \
+                -DUSE_AVX=ON \
                 -DUSE_AVX2=ON \
                 -DUSE_CUDA=ON \
                 ..
           make -j$(nproc)
+          
+          # Build SSE4.2 version for fallback
+          cd /home/saszel/dLLM
+          mkdir -p build_sse42 && cd build_sse42
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DUSE_SSE42=ON \
+                -DUSE_AVX=OFF \
+                -DUSE_AVX2=OFF \
+                ..
+          make -j$(nproc)
+
+  # Deploy to Node 2 (192.168.10.5) with rsync
+  deploy-node2-rsync:
+    needs: [build-linux]
+    
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install rsync
+      run: sudo apt-get install -y rsync
+
+    - name: Sync source to Node 2 (SSE4.2 only)
+      uses: appleboy/rsync-action@v1.0.0
+      with:
+        host: 192.168.10.5
+        username: saszel
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: ./
+        target: /home/saszel/dLLM/
+        options: '-avz --delete-excluded --exclude-from=.gitignore'
+
+    - name: Build on Node 2 (SSE4.2 only)
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 192.168.10.5
+        username: saszel
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /home/saszel/dLLM
+          
+          # Build SSE4.2 only version
+          mkdir -p build_sse42 && cd build_sse42
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DUSE_SSE42=ON \
+                -DUSE_AVX=OFF \
+                -DUSE_AVX2=OFF \
+                ..
+          make -j$(nproc)
+
+  create-release:
+    needs: [deploy-node1-rsync, deploy-node2-rsync]
+    
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'v')
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install build dependencies
+      run: |
+        pip install build twine
+
+    - name: Build Python wheel
+      run: |
+        cd src/python
+        python -m build
+
+    - name: Upload Python wheels to release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*.whl
+        token: ${{ secrets.GITHUB_TOKEN }}

@@ -113,6 +113,8 @@ include_directories(
 # Subdirectories
 # ============================================
 
+# Add subdirectories in dependency order (simd before tensor, tensor before engine, etc.)
+add_subdirectory(src/cpp/simd)
 add_subdirectory(src/cpp/tensor)
 add_subdirectory(src/cpp/engine)
 add_subdirectory(src/cpp/comm)

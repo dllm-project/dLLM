@@ -2,29 +2,27 @@
 
 add_library(dllm_tensor STATIC
     tensor.cpp
-    ops/arithmetics.cpp
-    ops/matrix.cpp
-    ops/activation.cpp
-    memory_pool.cpp
 )
 
 target_include_directories(dllm_tensor PUBLIC ${CMAKE_SOURCE_DIR}/src/cpp)
-target_link_libraries(dllm_tensor PUBLIC dllm_core)
 
-# SIMD-specific source files (compiled conditionally)
-set(SIMD_SOURCES "")
+# Include SIMD operation subdirectories (must be before linking)
+add_subdirectory(ops/sse42)
+add_subdirectory(ops/avx)
+add_subdirectory(ops/avx2)
 
-# SSE4.2 fallback path
+# Link SIMD library and operation libraries based on enabled instruction sets
+target_link_libraries(dllm_tensor PUBLIC dllm_simd)
+
 if(USE_SSE42)
-    target_compile_definitions(dllm_tensor PRIVATE USE_SSE42=1)
+    target_link_libraries(dllm_tensor PRIVATE dllm_ops_sse42)
 endif()
 
-# AVX path
 if(USE_AVX)
-    target_compile_definitions(dllm_tensor PRIVATE USE_AVX=1)
+    target_link_libraries(dllm_tensor PRIVATE dllm_ops_avx)
 endif()
 
-# AVX2 path (default for modern CPUs)
 if(USE_AVX2)
     target_compile_definitions(dllm_tensor PRIVATE USE_AVX2=1)
+    target_link_libraries(dllm_tensor PRIVATE dllm_ops_avx2)
 endif()

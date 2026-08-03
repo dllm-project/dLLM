@@ -1,5 +1,5 @@
 #include "tensor.h"
-
+#include "simd/simd_config.h"
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
