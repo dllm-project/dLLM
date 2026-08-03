@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""
+dLLM Python Wheel Build Configuration
+
+This setup.py is configured by CMake with the following substitutions:
+- @PROJECT_VERSION@ - Project version
+- @CMAKE_SOURCE_DIR@ - Source directory path
+"""
+
+import os
+import re
+from pathlib import Path
+from setuptools import setup, Extension
+from pybind11.setup_helpers import Pybind11Extension
+
+# Read version from CMakeLists.txt
+with open(os.path.join("@CMAKE_SOURCE_DIR@", "CMakeLists.txt"), "r") as f:
+    content = f.read()
+    match = re.search(r'Version\s+(\d+\.\d+\.\d+)', content)
+    VERSION = match.group(1) if match else "0.0.0"
+
+# Build the extension module
+ext_modules = [
+    Pybind11Extension(
+        name="dllm.dllm_cpp",
+        sources=[
+            "@CMAKE_SOURCE_DIR@/src/python/python_bridge.cpp",
+        ],
+        include_dirs=[
+            os.path.join("@CMAKE_SOURCE_DIR@", "src/cpp"),
+            os.path.join("@CMAKE_SOURCE_DIR@", "src/cpp/tensor"),
+            os.path.join("@CMAKE_SOURCE_DIR@", "src/cpp/engine"),
+            os.path.join("@CMAKE_SOURCE_DIR@", "src/cpp/comm"),
+        ],
+        extra_compile_args=[
+            "-O3",
+            "-DNDEBUG",
+            # Instruction set flags (matching CMake configuration)
+            "-DUSE_SSE42=1",
+            "-DUSE_AVX=1",
+            "-DUSE_AVX2=1",
+        ],
+    ),
+]
+
+# Package data
+package_data = {
+    "dllm": [
+        "*.pyi",
+    ]
+}
+
+setup(
+    name="dLLM",
+    version=VERSION,
+    author="dLLM Team",
+    author_email="dllm-project@example.com",
+    description="Distributed CPU AI Inference Engine with SIMD optimization",
+    long_description=Path("@CMAKE_SOURCE_DIR@/README.md").read_text(encoding="utf-8"),
+    long_description_content_type="text/markdown",
+    url="https://github.com/dllm-project/dLLM",
+    packages=["dllm"],
+    package_dir={"": "src/python"},
+    ext_modules=ext_modules,
+    package_data=package_data,
+    python_requires=">=3.8",
+    install_requires=[
+        "numpy>=1.20.0",
+        "pybind11>=2.11.0",
+    ],
+    extras_require={
+        "dev": [
+            "pytest>=6.0.0",
+            "scipy>=1.7.0",
+        ],
+    },
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: C++",
+    ],
+)

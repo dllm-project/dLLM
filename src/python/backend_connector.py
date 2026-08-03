@@ -18,68 +18,84 @@ class BackendConnector:
     """Connects Python API to C++ inference backend"""
     
     def __init__(self):
-        self.engine = None
+        self.request_handler = None
         if dllm_cpp:
             try:
-                self.engine = dllm_cpp.InferenceEngine()
+                self.request_handler = dllm_cpp.RequestHandler()
             except Exception as e:
-                print(f"Failed to initialize InferenceEngine: {e}")
+                print(f"Failed to initialize RequestHandler: {e}")
     
     def is_ready(self) -> bool:
         """Check if backend is ready for inference"""
-        return self.engine is not None
+        return self.request_handler is not None and self.request_handler.is_ready()
     
     def load_model(self, model_path: str) -> bool:
         """Load a model from path"""
-        if not self.engine:
-            raise RuntimeError("InferenceEngine not available")
-        return self.engine.load_model(model_path)
+        if not self.request_handler:
+            raise RuntimeError("RequestHandler not available")
+        return self.request_handler.load_model(model_path)
     
     def chat(self, model: str, messages: List[Dict[str, str]], 
              temperature: float = 1.0, top_p: float = 1.0,
              max_tokens: int = None) -> str:
         """Generate chat completion"""
-        if not self.engine:
-            raise RuntimeError("InferenceEngine not available")
+        if not self.request_handler:
+            raise RuntimeError("RequestHandler not available")
         
-        # Convert messages to format expected by C++ backend
-        text = self._format_messages(messages)
-        return self.engine.infer(model, text)
+        # Format messages as list of dicts
+        messages_list = [{"role": m["role"], "content": m["content"]} for m in messages]
+        
+        response = self.request_handler.handle_chat_completion(
+            messages_list,
+            temperature=temperature,
+            top_p=top_p,
+            max_tokens=max_tokens or -1
+        )
+        
+        if not response.success:
+            raise RuntimeError(f"Chat completion failed: {response.error_message}")
+        
+        return response.text
     
     def infer(self, model: str, prompt: str,
               temperature: float = 1.0, top_p: float = 1.0,
               max_tokens: int = None) -> str:
         """Generate completion from prompt"""
-        if not self.engine:
-            raise RuntimeError("InferenceEngine not available")
+        if not self.request_handler:
+            raise RuntimeError("RequestHandler not available")
         
-        return self.engine.infer(model, prompt)
+        response = self.request_handler.handle_completion(
+            prompt,
+            temperature=temperature,
+            top_p=top_p,
+            max_tokens=max_tokens or -1
+        )
+        
+        if not response.success:
+            raise RuntimeError(f"Completion failed: {response.error_message}")
+        
+        return response.text
     
     def get_embedding(self, input_text: str, model: str) -> List[float]:
         """Get embedding for text"""
-        if not self.engine:
-            raise RuntimeError("InferenceEngine not available")
+        if not self.request_handler:
+            raise RuntimeError("RequestHandler not available")
         
-        # Placeholder implementation
-        # In production, this would call the C++ backend's embedding function
-        return [0.0] * 768  # Return a dummy 768-dim embedding
+        response = self.request_handler.handle_embedding(input_text)
+        
+        if not response.success:
+            raise RuntimeError(f"Embedding failed: {response.error_message}")
+        
+        return response.data
     
     def list_models(self) -> List[Dict[str, Any]]:
         """List available models"""
-        if not self.engine:
-            raise RuntimeError("InferenceEngine not available")
-        
-        # Placeholder - in production would scan model directory
+        # Placeholder - in production would query the loaded model or scan directory
         return [
             {"id": "llama-7b", "owned_by": "dLLM"},
             {"id": "mistral-7b", "owned_by": "dLLM"},
             {"id": "gemma-7b", "owned_by": "dLLM"}
         ]
-    
-    def _format_messages(self, messages: List[Dict[str, str]]) -> str:
-        """Format messages for inference"""
-        # Simple format: combine all messages
-        return "\n".join([f"{m['role']}: {m['content']}" for m in messages])
 
 
 if __name__ == "__main__":

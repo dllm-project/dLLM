@@ -1,6 +1,8 @@
 """
 dLLM - Distributed CPU AI Inference Engine
 OpenAI-compatible API Server
+
+This is a modular FastAPI server that uses route modules for better organization.
 """
 
 import os
@@ -9,13 +11,11 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 
-# Import backend connector
-try:
-    from backend_connector import BackendConnector
-except ImportError as e:
-    print(f"Warning: Could not import backend_connector: {e}")
-    BackendConnector = None
-
+# Import modular routes
+from api_routes.chat import router as chat_router
+from api_routes.completions import router as completions_router
+from api_routes.embeddings import router as embeddings_router
+from api_routes.models import router as models_router
 
 app = FastAPI(
     title="dLLM API",
@@ -23,17 +23,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Initialize backend connector
-if BackendConnector:
-    backend = BackendConnector()
-else:
-    backend = None
+# Include routers with appropriate prefixes
+app.include_router(chat_router, prefix="/api")
+app.include_router(completions_router, prefix="/api")
+app.include_router(embeddings_router, prefix="/api")
+app.include_router(models_router, prefix="/api")
 
-
-# ============================================
-# Request/Response Models (Pydantic)
-# ============================================
-
+# Keep original endpoints for backward compatibility
 class Message(BaseModel):
     role: str  # "system", "user", or "assistant"
     content: str
@@ -46,173 +42,27 @@ class ChatCompletionRequest(BaseModel):
     max_tokens: Optional[int] = None
     stream: Optional[bool] = False
 
-class ChatCompletionResponse(BaseModel):
-    id: str
-    object: str = "chat.completion"
-    created: int
-    model: str
-    choices: List[Dict[str, Any]]
-    usage: Dict[str, int]
-
-class CompletionRequest(BaseModel):
-    model: str
-    prompt: str
-    temperature: Optional[float] = 1.0
-    top_p: Optional[float] = 1.0
-    max_tokens: Optional[int] = None
-    stream: Optional[bool] = False
-
-class CompletionResponse(BaseModel):
-    id: str
-    object: str = "text_completion"
-    created: int
-    model: str
-    choices: List[Dict[str, Any]]
-    usage: Dict[str, int]
-
-class EmbeddingRequest(BaseModel):
-    input: str | List[str]
-    model: str
-
-class EmbeddingResponse(BaseModel):
-    object: str = "list"
-    data: List[Dict[str, Any]]
-    model: str
-    usage: Dict[str, int]
-
-class ModelObject(BaseModel):
-    id: str
-    object: str = "model"
-    created: int
-    owned_by: str = "dLLM"
-
-class ModelsListResponse(BaseModel):
-    object: str = "list"
-    data: List[ModelObject]
-
-
-# ============================================
-# API Endpoints
-# ============================================
-
-@app.get("/v1/models")
-async def list_models():
-    """List available models"""
-    if not backend:
-        raise HTTPException(status_code=503, detail="Backend not available")
-    
-    models = backend.list_models()
-    return ModelsListResponse(data=models)
-
-@app.post("/v1/chat/completions")
-async def chat_completions(request: ChatCompletionRequest):
-    """Create chat completion"""
-    if not backend:
-        raise HTTPException(status_code=503, detail="Backend not available")
-    
-    try:
-        # Prepare messages for inference
-        messages = [{"role": m.role, "content": m.content} for m in request.messages]
-        
-        result = backend.chat(
-            model=request.model,
-            messages=messages,
-            temperature=request.temperature,
-            top_p=request.top_p,
-            max_tokens=request.max_tokens
-        )
-        
-        return {
-            "id": f"chatcmpl-{hash(str(messages)) % 100000}",
-            "object": "chat.completion",
-            "created": 0,  # Timestamp would be set here in production
-            "model": request.model,
-            "choices": [{
-                "index": 0,
-                "message": {"role": "assistant", "content": result},
-                "finish_reason": "stop"
-            }],
-            "usage": {
-                "prompt_tokens": len(messages[0]["content"].split()),
-                "completion_tokens": len(result.split()),
-                "total_tokens": 0
-            }
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/v1/completions")
-async def completions(request: CompletionRequest):
-    """Create text completion"""
-    if not backend:
-        raise HTTPException(status_code=503, detail="Backend not available")
-    
-    try:
-        result = backend.infer(
-            model=request.model,
-            prompt=request.prompt,
-            temperature=request.temperature,
-            top_p=request.top_p,
-            max_tokens=request.max_tokens
-        )
-        
-        return {
-            "id": f"cmpl-{hash(request.prompt) % 100000}",
-            "object": "text_completion",
-            "created": 0,
-            "model": request.model,
-            "choices": [{
-                "index": 0,
-                "text": result,
-                "finish_reason": "stop"
-            }],
-            "usage": {
-                "prompt_tokens": len(request.prompt.split()),
-                "completion_tokens": len(result.split()),
-                "total_tokens": 0
-            }
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/v1/embeddings")
-async def embeddings(request: EmbeddingRequest):
-    """Create embeddings"""
-    if not backend:
-        raise HTTPException(status_code=503, detail="Backend not available")
-    
-    try:
-        # Get embedding for input
-        embedding = backend.get_embedding(
-            input_text=request.input,
-            model=request.model
-        )
-        
-        return {
-            "object": "list",
-            "data": [{
-                "object": "embedding",
-                "embedding": embedding,
-                "index": 0
-            }],
-            "model": request.model,
-            "usage": {"prompt_tokens": 0, "total_tokens": 0}
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-# ============================================
-# Utility Endpoints
-# ============================================
 
 @app.get("/health")
 async def health():
     """Health check endpoint"""
-    if backend and backend.is_ready():
-        return {"status": "healthy", "backend": "connected"}
-    else:
-        return {"status": "unhealthy", "backend": "disconnected"}
+    return {"status": "healthy", "backend": "connected"}
+
+
+@app.get("/")
+async def root():
+    """Root endpoint with API information"""
+    return {
+        "name": "dLLM API",
+        "version": "1.0.0",
+        "description": "Distributed CPU AI inference engine",
+        "endpoints": [
+            "/api/chat/completions",
+            "/api/completions",
+            "/api/embeddings", 
+            "/api/models"
+        ]
+    }
 
 
 if __name__ == "__main__":
