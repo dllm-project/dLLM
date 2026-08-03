@@ -1,0 +1,20 @@
+# dLLM Python dependencies
+
+# Web framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Data validation
+pydantic>=2.5.0
+
+# C++ integration
+pybind11>=2.11.0
+
+# Numerical operations
+numpy>=1.24.0
+
+# OpenAI client (for testing)
+openai>=1.0.0
+
+# Additional utilities
+python-dotenv>=1.0.0

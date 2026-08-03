@@ -1,0 +1,129 @@
+# dLLM CI/CD Pipeline
+# Build, test, and deploy dLLM on multiple platforms
+
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake g++ git libssl-dev
+        pip install pybind11 numpy pytest
+
+    - name: Build dLLM (SSE4.2)
+      run: |
+        mkdir build_sse42 && cd build_sse42
+        cmake -DCMAKE_BUILD_TYPE=Release \
+              -DUSE_SSE42=ON \
+              -DUSE_AVX=OFF \
+              -DUSE_AVX2=OFF \
+              ..
+        make -j$(nproc)
+
+    - name: Build dLLM (AVX2)
+      run: |
+        mkdir build_avx2 && cd build_avx2
+        cmake -DCMAKE_BUILD_TYPE=Release \
+              -DUSE_SSE42=ON \
+              -DUSE_AVX=ON \
+              -DUSE_AVX2=ON \
+              ..
+        make -j$(nproc)
+
+    - name: Run tests (SSE4.2)
+      run: |
+        cd build_sse42
+        ctest --output-on-failure
+
+  build-fedora:
+    runs-on: ubuntu-latest
+    container: fedora:44
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        dnf install -y gcc gcc-c++ make cmake3 python3 python3-pip git
+        pip3 install pybind11 numpy pytest
+
+    - name: Build with CUDA (Fedora)
+      run: |
+        mkdir build_cuda && cd build_cuda
+        cmake -DCMAKE_BUILD_TYPE=Release \
+              -DUSE_CUDA=ON \
+              -DUSE_AVX2=ON \
+              ..
+        make -j$(nproc)
+
+  deploy-production:
+    needs: [build-linux, build-fedora]
+    
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      run: |
+        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} --all-tags
+
+  deploy-node1:
+    needs: [deploy-production]
+    
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to production node (192.168.10.125)
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 192.168.10.125
+        username: saszel
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /home/saszel/dLLM
+          git pull origin main
+          mkdir -p build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DUSE_AVX2=ON \
+                -DUSE_CUDA=ON \
+                ..
+          make -j$(nproc)

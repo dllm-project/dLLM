@@ -27,11 +27,44 @@
 - **Hardware**: Gen9+ graphics (Iris Xe or Arc A-Series)
 - **RAM**: 4 GB VRAM minimum, 8 GB recommended
 
-### Recommended Requirements (for AVX512 CPU)
-- **CPU**: Intel Ice Lake/Ivy Bridge-EP or AMD Zen4+ with AVX-512
-- **RAM**: 64 GB+
+### Recommended Requirements (for AVX2 CPU)
+- **CPU**: Intel Haswell/Broadwell or AMD Zen+ with AVX2 support
+- **RAM**: 32 GB+
 - **Storage**: NVMe SSD, 50 GB free space
 - **Network**: 10 Gbps Ethernet (for distributed mode)
+
+### Note on Instruction Set Support - NO AVX-512
+This project does NOT use AVX-512 instruction set. All builds are optimized for:
+- SSE4.2: Universal fallback, works on all modern CPUs
+- AVX/AVX2: Available where supported, not required for basic operation
+
+**No AVX-512 support**: This project intentionally excludes AVX-512 to maintain compatibility with production homelab systems.
+
+## Production Build Environments
+
+### Node 1 - Production (192.168.10.125)
+| Component | Specification |
+|-----------|--------------|
+| OS | Fedora Linux 44 (Server Edition) |
+| CPU | Intel Core i9-14900KF (SSE4.2 → AVX2, no AVX-512 enabled) |
+| GPU | NVIDIA GeForce GTX 1060 6GB (Pascal, CC 6.1) |
+| Build Type | Release with CUDA support |
+
+### Node 2 - SSE4.2 Only (192.168.10.5)
+| Component | Specification |
+|-----------|--------------|
+| OS | Ubuntu 26.04 LTS |
+| CPU | Intel Xeon X5570 (SSE4.2 only, no AVX/AVX2) |
+| GPU | None |
+| Build Type | Release with SSE4.2 only |
+
+### CI/CD Pipeline
+- **Host**: GitHub Actions
+- **Runner Environment**: Ubuntu latest container
+- **Build Matrix**: SSE4.2, AVX2 configurations
+- **Deployment**: Production node via SSH
+
+For detailed build instructions for each environment, see [BUILD.md](BUILD.md).
 
 ## Prerequisites
 
