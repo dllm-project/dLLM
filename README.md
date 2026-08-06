@@ -283,6 +283,8 @@ dLLM automatically detects model architecture from format metadata:
 | **Hybrid Parallelism** | [HYBRID_PARALLELISM.md](HYBRID_PARALLELISM.md) |
 | **PV Cache Optimization** | [PV_CACHE_README.md](PV_CACHE_README.md) |
 | **Distributed PV Cache** | [DISTRIBUTED_PV_CACHE.md](DISTRIBUTED_PV_CACHE.md) |
+| **Network KV Cache Offloading** | [NETWORK_KV_CACHE_OFFLOADING.md](NETWORK_KV_CACHE_OFFLOADING.md) |
+| **GPU ↔ CPU/RAM Offloading** | [GPU_CPU_OFFLOADING.md](GPU_CPU_OFFLOADING.md) |
 | **Troubleshooting** | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
 | **Python Integration** | [PYTHON_INTEGRATION.md](PYTHON_INTEGRATION.md) |
 | **Roadmap** | [ROADMAP.md](ROADMAP.md) |
