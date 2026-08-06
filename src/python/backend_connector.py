@@ -4,7 +4,8 @@ Bridges Python FastAPI with C++ inference engine via pybind11
 """
 
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+from enum import Enum
 
 try:
     import dllm_cpp
@@ -14,11 +15,35 @@ except ImportError as e:
     dllm_cpp = None
 
 
+class ModelFormat(Enum):
+    """Supported model formats"""
+    UNKNOWN = "unknown"
+    GGUF = "gguf"
+    SAFETENSORS = "safetensors"
+    SHARDED = "sharded"
+    PYTORCH = "pytorch"
+
+
+class ModelArchitecture(Enum):
+    """Supported model architectures"""
+    UNKNOWN = "unknown"
+    LLAMA = "llama"
+    MISTRAL = "mistral"
+    GEMMA = "gemma"
+    PHI = "phi"
+    QWEN = "qwen"
+    CODELLAMA = "codellama"
+    CHATGLM = "chatglm"
+    DEEPSEEK = "deepseek"
+    CUSTOM = "custom"
+
+
 class BackendConnector:
     """Connects Python API to C++ inference backend"""
     
     def __init__(self):
         self.request_handler = None
+        self.model_metadata = None
         if dllm_cpp:
             try:
                 self.request_handler = dllm_cpp.RequestHandler()
@@ -29,11 +54,56 @@ class BackendConnector:
         """Check if backend is ready for inference"""
         return self.request_handler is not None and self.request_handler.is_ready()
     
-    def load_model(self, model_path: str) -> bool:
-        """Load a model from path"""
+    def load_model(self, model_path: str, model_format: Optional[ModelFormat] = None) -> bool:
+        """Load a model from path with optional format specification"""
         if not self.request_handler:
             raise RuntimeError("RequestHandler not available")
-        return self.request_handler.load_model(model_path)
+        
+        # Parse model format if not provided
+        if model_format is None:
+            model_format = self._parse_model_format(model_path)
+        
+        # Load model with format information
+        if model_format == ModelFormat.UNKNOWN:
+            print(f"Warning: Could not determine model format for {model_path}")
+        
+        # Load model
+        success = self.request_handler.load_model(model_path)
+        
+        if success:
+            # Try to get model metadata
+            try:
+                if hasattr(dllm_cpp, 'parse_model_format'):
+                    parsed_format = dllm_cpp.parse_model_format(model_path)
+                    self.model_metadata = {
+                        'format': model_format.value,
+                        'parsed_format': parsed_format,
+                        'path': model_path
+                    }
+            except Exception as e:
+                print(f"Warning: Could not parse model metadata: {e}")
+        
+        return success
+    
+    def _parse_model_format(self, model_path: str) -> ModelFormat:
+        """Parse model format from file path"""
+        path_lower = model_path.lower()
+        
+        if 'gguf' in path_lower:
+            return ModelFormat.GGUF
+        elif 'safetensors' in path_lower:
+            # Check for sharded format
+            if 'model.safetensors.index.json' in path_lower:
+                return ModelFormat.SHARDED
+            return ModelFormat.SAFETENSORS
+        elif path_lower.endswith(('.pt', '.pth')):
+            return ModelFormat.PYTORCH
+        else:
+            return ModelFormat.UNKNOWN
+    
+    def get_model_metadata(self) -> Optional[Dict[str, Any]]:
+        """Get metadata about the loaded model"""
+        return self.model_metadata
     
     def chat(self, model: str, messages: List[Dict[str, str]], 
              temperature: float = 1.0, top_p: float = 1.0,

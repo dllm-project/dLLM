@@ -100,6 +100,25 @@ This document outlines the comprehensive development roadmap for the distributed
   - `ops/avx2/` - AVX2 with FMA optimized operations
 - `src/cpp/engine/inference_core.cpp/hpp` - Inference orchestration (ready)
 - `src/cpp/engine/request_handler.cpp/hpp` - Request routing (ready)
+- `src/cpp/engine/model_loader.cpp/hpp` - Model format loading (GGUF, Safetensors)
+
+#### Model Format Support (Added)
+- [x] **GGUF Format Support**
+  - [x] Parse GGUF header and metadata
+  - [x] Support for all quantization types (Q2_K through Q8_K, F16, F32)
+  - [x] Architecture detection from GGUF metadata
+  - [x] Memory-mapped loading for large models
+  
+- [x] **Safetensors Format Support**
+  - [x] Parse JSON header and tensor metadata
+  - [x] Support for all data types (F32, F16, BF16, I64, I32, etc.)
+  - [x] Sharded safetensors with index files
+  - [x] Lazy loading for on-demand tensor access
+  
+- [x] **Model Architecture Detection**
+  - [x] Automatic detection from format metadata
+  - [x] Support for Llama, Mistral, Gemma, Phi, Qwen, CodeLlama, ChatGLM, DeepSeek
+  - [x] C++ and Python API for format/architecture parsing
 
 #### Build Environments Deployed
 | Server | IP Address | OS | CPU | GPU | Instruction Set |

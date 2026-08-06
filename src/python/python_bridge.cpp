@@ -6,6 +6,7 @@
 #include "simd/simd_ops.h"
 #include "engine/inference_core.h"
 #include "engine/request_handler.h"
+#include "engine/model_loader.h"
 
 namespace py = pybind11;
 
@@ -194,4 +195,79 @@ PYBIND11_MODULE(dllm_cpp, m) {
         .value("AVX", dllm::simd::InstructionSet::AVX)
         .value("AVX2", dllm::simd::InstructionSet::AVX2)
         .value("AVX512", dllm::simd::InstructionSet::AVX512);
+
+    // ============================================
+    // ModelFormat enum bindings
+    // ============================================
+    py::enum_<dllm::ModelFormat>(m, "ModelFormat")
+        .value("UNKNOWN", dllm::ModelFormat::UNKNOWN)
+        .value("GGUF", dllm::ModelFormat::GGUF)
+        .value("SAFETENSORS", dllm::ModelFormat::SAFETENSORS)
+        .value("SHARDED", dllm::ModelFormat::SHARDED)
+        .value("PYTORCH", dllm::ModelFormat::PYTORCH)
+        .export_values();
+
+    // ============================================
+    // ModelArchitecture enum bindings
+    // ============================================
+    py::enum_<dllm::ModelArchitecture>(m, "ModelArchitecture")
+        .value("UNKNOWN", dllm::ModelArchitecture::UNKNOWN)
+        .value("LLAMA", dllm::ModelArchitecture::LLAMA)
+        .value("MISTRAL", dllm::ModelArchitecture::MISTRAL)
+        .value("GEMMA", dllm::ModelArchitecture::GEMMA)
+        .value("PHI", dllm::ModelArchitecture::PHI)
+        .value("QWEN", dllm::ModelArchitecture::QWEN)
+        .value("CODELLAMA", dllm::ModelArchitecture::CODELLAMA)
+        .value("CHATGLM", dllm::ModelArchitecture::CHATGLM)
+        .value("DEEPSEEK", dllm::ModelArchitecture::DEEPSEEK)
+        .value("CUSTOM", dllm::ModelArchitecture::CUSTOM)
+        .export_values();
+
+    // ============================================
+    // ModelMetadata struct bindings
+    // ============================================
+    py::class_<dllm::ModelMetadata>(m, "ModelMetadata")
+        .def(py::init<>())
+        .def_readwrite("name", &dllm::ModelMetadata::name)
+        .def_readwrite("description", &dllm::ModelMetadata::description)
+        .def_readwrite("format", &dllm::ModelMetadata::format)
+        .def_readwrite("architecture", &dllm::ModelMetadata::architecture)
+        .def_readwrite("num_parameters", &dllm::ModelMetadata::num_parameters)
+        .def_readwrite("num_layers", &dllm::ModelMetadata::num_layers)
+        .def_readwrite("vocab_size", &dllm::ModelMetadata::vocab_size)
+        .def_readwrite("hidden_size", &dllm::ModelMetadata::hidden_size)
+        .def_readwrite("num_attention_heads", &dllm::ModelMetadata::num_attention_heads)
+        .def_readwrite("num_key_value_heads", &dllm::ModelMetadata::num_key_value_heads)
+        .def_readwrite("max_position_embeddings", &dllm::ModelMetadata::max_position_embeddings)
+        .def_readwrite("rope_theta", &dllm::ModelMetadata::rope_theta)
+        .def_readwrite("rms_norm_eps", &dllm::ModelMetadata::rms_norm_eps)
+        .def_readwrite("is_chat_model", &dllm::ModelMetadata::is_chat_model)
+        .def_readwrite("custom_metadata", &dllm::ModelMetadata::custom_metadata)
+        .def("__repr__", [](const dllm::ModelMetadata& meta) {
+            std::ostringstream oss;
+            oss << "ModelMetadata(name=" << meta.name 
+                << ", format=" << dllm::format_to_string(meta.format)
+                << ", architecture=" << dllm::architecture_to_string(meta.architecture)
+                << ", params=" << meta.num_parameters << ")";
+            return oss.str();
+        });
+
+    // ============================================
+    // Model loader utility functions
+    // ============================================
+    m.def("parse_model_format", &dllm::parse_model_format,
+          "Parse model format from file path",
+          py::arg("model_path"));
+    
+    m.def("format_to_string", &dllm::format_to_string,
+          "Convert ModelFormat to string",
+          py::arg("format"));
+    
+    m.def("architecture_to_string", &dllm::architecture_to_string,
+          "Convert ModelArchitecture to string",
+          py::arg("arch"));
+    
+    m.def("parse_architecture", &dllm::parse_architecture,
+          "Parse ModelArchitecture from string",
+          py::arg("arch_name"));
 }

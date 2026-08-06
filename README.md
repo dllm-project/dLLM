@@ -33,6 +33,15 @@ dLLM uses a two-tier architecture:
 
 ## Key Features
 
+### Model Format Support (NEW)
+dLLM supports multiple model weight formats for loading pre-trained models:
+- **GGUF** - GGML Unified Format with quantization support (Q4_0 through Q8_K)
+- **Safetensors** - Safe tensor serialization by Hugging Face
+- **PyTorch** - Native PyTorch model format
+- **Auto-detection** - Format and architecture detected automatically from file path
+
+See [Model Formats](MODEL_FORMATS.md) for complete details.
+
 ### High-Performance Tokenization (NEW)
 The dLLM Rust tokenizer provides:
 - **85K-92K tokens/s throughput** (10x+ faster than Python alternatives)

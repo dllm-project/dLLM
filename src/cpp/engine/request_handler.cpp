@@ -16,14 +16,42 @@ RequestHandler::~RequestHandler() {
 }
 
 bool RequestHandler::initialize(const std::string& model_path) {
-    return load_model(model_path);
+    // Detect model format from file extension
+    ModelFormat format = parse_model_format(model_path);
+    
+    if (format == ModelFormat::UNKNOWN) {
+        std::cerr << "[RequestHandler] Unknown model format for: " << model_path << std::endl;
+        return false;
+    }
+    
+    return initialize(model_path, format);
+}
+
+bool RequestHandler::initialize(const std::string& model_path, ModelFormat format) {
+    return load_model(model_path, format);
 }
 
 bool RequestHandler::load_model(const std::string& model_path) {
+    // Detect model format from file extension
+    ModelFormat format = parse_model_format(model_path);
+    
+    if (format == ModelFormat::UNKNOWN) {
+        std::cerr << "[RequestHandler] Unknown model format for: " << model_path << std::endl;
+        return false;
+    }
+    
+    return load_model(model_path, format);
+}
+
+bool RequestHandler::load_model(const std::string& model_path, ModelFormat format) {
     // In a real implementation, this would:
-    // 1. Load model weights from disk
-    // 2. Initialize the inference core
-    // 3. Set up tokenizers and other resources
+    // 1. Create appropriate model loader (GGUF, safetensors, etc.)
+    // 2. Load model weights from disk
+    // 3. Initialize the inference core
+    // 4. Set up tokenizers and other resources
+    
+    std::cout << "[RequestHandler] Loading model from " << model_path 
+              << " (format: " << format_to_string(format) << ")" << std::endl;
     
     // For now, just mark as loaded
     current_model_path_ = model_path;

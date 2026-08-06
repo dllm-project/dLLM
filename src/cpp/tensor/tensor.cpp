@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
+#include <fstream>
+#include <iostream>
 
 namespace dllm {
 
@@ -133,6 +135,93 @@ std::string Tensor::to_string() const {
     oss << "], dtype=" << static_cast<int>(dtype_) 
         << ", device=" << static_cast<int>(device_) << ")";
     return oss.str();
+}
+
+// ============================================================================
+// Model weight loading support
+// ============================================================================
+
+bool Tensor::load_from_file(const std::string& file_path, const std::string& tensor_name) {
+    // TODO: Implement GGUF/safetensors tensor loading
+    // This will parse the model file format and extract the specific tensor
+    
+    std::cout << "[Tensor] Loading tensor '" << tensor_name << "' from " << file_path << std::endl;
+    
+    // Placeholder: create a dummy tensor for now
+    if (!data_ptr_) {
+        size_t bytes = total_bytes();
+        data_ptr_ = std::malloc(bytes);
+        if (!data_ptr_) {
+            std::cerr << "[Tensor] Failed to allocate memory for tensor loading" << std::endl;
+            return false;
+        }
+        memset(data_ptr_, 0, bytes);
+    }
+    
+    return true;
+}
+
+bool Tensor::save_to_file(const std::string& file_path, const std::string& tensor_name) const {
+    // TODO: Implement tensor saving to model file format
+    // This will write the tensor data in the appropriate format
+    
+    std::cout << "[Tensor] Saving tensor '" << tensor_name << "' to " << file_path << std::endl;
+    
+    if (!data_ptr_) {
+        std::cerr << "[Tensor] No data to save" << std::endl;
+        return false;
+    }
+    
+    // Placeholder: write raw data to file
+    std::ofstream ofs(file_path, std::ios::binary);
+    if (!ofs) {
+        std::cerr << "[Tensor] Failed to open file for writing: " << file_path << std::endl;
+        return false;
+    }
+    
+    // Write tensor metadata
+    ofs.write(reinterpret_cast<const char*>(&shape_), sizeof(Shape));
+    ofs.write(reinterpret_cast<const char*>(&dtype_), sizeof(DataType));
+    
+    // Write tensor data
+    ofs.write(static_cast<const char*>(data_ptr_), total_bytes());
+    
+    if (!ofs) {
+        std::cerr << "[Tensor] Failed to write tensor data" << std::endl;
+        return false;
+    }
+    
+    return true;
+}
+
+size_t Tensor::load_from_buffer(const void* data, size_t size) {
+    if (!data || size == 0) {
+        std::cerr << "[Tensor] Invalid buffer for loading" << std::endl;
+        return 0;
+    }
+    
+    size_t bytes_to_copy = std::min(size, total_bytes());
+    
+    if (!data_ptr_) {
+        data_ptr_ = std::malloc(bytes_to_copy);
+        if (!data_ptr_) {
+            std::cerr << "[Tensor] Failed to allocate memory for buffer loading" << std::endl;
+            return 0;
+        }
+        capacity_bytes_ = bytes_to_copy;
+    } else if (capacity_bytes_ < bytes_to_copy) {
+        void* new_ptr = std::realloc(data_ptr_, bytes_to_copy);
+        if (!new_ptr) {
+            std::cerr << "[Tensor] Failed to reallocate memory for buffer loading" << std::endl;
+            return 0;
+        }
+        data_ptr_ = new_ptr;
+        capacity_bytes_ = bytes_to_copy;
+    }
+    
+    memcpy(data_ptr_, data, bytes_to_copy);
+    
+    return bytes_to_copy;
 }
 
 } // namespace dllm

@@ -3,6 +3,7 @@
 add_library(dllm_engine STATIC
     inference_core.cpp
     request_handler.cpp
+    model_loader.cpp
 )
 
 target_include_directories(dllm_engine PUBLIC ${CMAKE_SOURCE_DIR}/src/cpp)

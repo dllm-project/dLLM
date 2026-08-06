@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
+#include <string>
 
 namespace dllm {
 
@@ -17,6 +18,16 @@ enum class DataType {
     INT8 = 3,   // 8-bit integer
     INT32 = 4,  // 32-bit integer
 };
+
+/**
+ * @brief Convert DataType to string representation
+ */
+std::string data_type_to_string(DataType dtype);
+
+/**
+ * @brief Convert string to DataType
+ */
+DataType string_to_data_type(const std::string& str);
 
 /**
  * @brief Device type for tensor storage
@@ -94,6 +105,11 @@ public:
 
     // Utility
     std::string to_string() const;
+
+    // Model weight loading support
+    bool load_from_file(const std::string& file_path, const std::string& tensor_name = "");
+    bool save_to_file(const std::string& file_path, const std::string& tensor_name = "") const;
+    size_t load_from_buffer(const void* data, size_t size);
 
 private:
     Shape shape_;

@@ -5,6 +5,7 @@
 #include <map>
 #include <functional>
 #include "tensor/tensor.h"
+#include "engine/model_loader.h"
 
 namespace dllm {
 
@@ -41,6 +42,9 @@ public:
 
     // Initialize the request handler with model path
     bool initialize(const std::string& model_path);
+    
+    // Initialize with explicit model format
+    bool initialize(const std::string& model_path, ModelFormat format);
 
     // Process different types of requests
     InferenceResponse handle_chat_completion(

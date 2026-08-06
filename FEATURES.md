@@ -17,6 +17,86 @@
 - Tensor runtime with zero-copy sharing
 - Distributed cluster management
 - Memory-efficient inference
+- Model format loading (GGUF, Safetensors)
+
+## Model Format Support
+
+dLLM supports multiple model weight formats for loading pre-trained models:
+
+### Supported Formats
+
+| Format | Extension | Description | Status |
+|--------|-----------|-------------|--------|
+| **GGUF** | `.gguf` | GGML Unified Format - quantized models with metadata | ✓ Supported |
+| **Safetensors** | `.safetensors` | Safe tensor serialization format by Hugging Face | ✓ Supported |
+| Sharded Safetensors | `*.index.json` | Multi-file safetensors with index | ✓ Supported |
+| PyTorch | `.pt`, `.pth` | PyTorch native format | ✓ Supported |
+
+### GGUF Format
+
+GGUF (GGML Unified Format) is the primary format for dLLM, supporting:
+- **Quantization**: Q4_0, Q4_1, Q5_0, Q5_1, Q8_0, Q2_K, Q3_K, Q4_K, Q5_K, Q6_K, Q8_K
+- **Metadata**: Architecture, layers, vocab size, rope parameters
+- **Efficiency**: Memory-mapped loading for large models
+- **Compatibility**: Compatible with llama.cpp ecosystem
+
+### Safetensors Format
+
+Safetensors provides safe tensor serialization:
+- **Safety**: No arbitrary code execution during loading
+- **Lazy Loading**: Load only needed tensors on demand
+- **Metadata**: JSON header with model configuration
+- **Sharding**: Support for multi-file large models
+
+### Model Architecture Detection
+
+dLLM automatically detects model architecture from format metadata:
+
+| Architecture | Supported Models |
+|-------------|-----------------|
+| Llama | Llama 2, Llama 3, Llama 3.1 |
+| Mistral | Mistral 7B, Mistral Small |
+| Gemma | Gemma 2B, Gemma 7B, Gemma 2 |
+| Phi | Phi-2, Phi-3 |
+| Qwen | Qwen 7B, Qwen 14B |
+| CodeLlama | CodeLlama 7B, 13B, 34B |
+| ChatGLM | ChatGLM 6B |
+| DeepSeek | DeepSeek Coder, DeepSeek V2 |
+
+### Python API for Model Loading
+
+```python
+from backend_connector import BackendConnector, ModelFormat
+
+connector = BackendConnector()
+
+# Auto-detect format from file path
+connector.load_model("models/llama-3.1-8b.gguf")
+
+# Explicit format specification
+connector.load_model("models/mistral-7b.safetensors", 
+                     model_format=ModelFormat.SAFETENSORS)
+
+# Check loaded model metadata
+metadata = connector.get_model_metadata()
+print(f"Format: {metadata['format']}")
+print(f"Architecture: {metadata['architecture']}")
+```
+
+### C++ API for Model Loading
+
+```cpp
+#include "engine/model_loader.h"
+
+// Parse format from path
+auto format = parse_model_format("models/llama-3.1-8b.gguf");
+
+// Create loader
+auto loader = create_model_loader(format);
+
+// Load model
+auto metadata = loader->load("models/llama-3.1-8b.gguf");
+```
 
 ### Python Frontend
 

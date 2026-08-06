@@ -1,4 +1,5 @@
 #include "engine/inference_core.h"
+#include "engine/model_loader.h"
 #include "tensor/tensor.h"
 #include "simd/simd_ops.h"
 #include <fstream>
@@ -17,8 +18,52 @@ InferenceCore::~InferenceCore() {
 }
 
 bool InferenceCore::load_model(const std::string& model_path) {
-    // TODO: Implement actual model loading logic
-    // For now, set as loaded and return true
+    // Detect model format from file extension
+    ModelFormat format = parse_model_format(model_path);
+    
+    if (format == ModelFormat::UNKNOWN) {
+        std::cerr << "[InferenceCore] Unknown model format for: " << model_path << std::endl;
+        return false;
+    }
+    
+    return load_model(model_path, format);
+}
+
+bool InferenceCore::load_model(const std::string& model_path, ModelFormat format) {
+    // Create appropriate model loader
+    loader_ = create_model_loader(format);
+    
+    if (!loader_) {
+        std::cerr << "[InferenceCore] Failed to create model loader for format: " 
+                  << format_to_string(format) << std::endl;
+        return false;
+    }
+    
+    std::cout << "[InferenceCore] Using " << loader_->name() << " for: " << model_path << std::endl;
+    
+    // Load model metadata
+    metadata_ = std::make_unique<ModelMetadata>(loader_->load_metadata(model_path));
+    
+    if (metadata_) {
+        std::cout << "[InferenceCore] Model: " << metadata_->name << std::endl;
+        std::cout << "[InferenceCore] Format: " << format_to_string(metadata_->format) << std::endl;
+        std::cout << "[InferenceCore] Architecture: " << architecture_to_string(metadata_->architecture) << std::endl;
+        std::cout << "[InferenceCore] Parameters: " << metadata_->num_parameters << std::endl;
+        std::cout << "[InferenceCore] Layers: " << metadata_->num_layers << std::endl;
+        std::cout << "[InferenceCore] Vocab size: " << metadata_->vocab_size << std::endl;
+        std::cout << "[InferenceCore] Hidden size: " << metadata_->hidden_size << std::endl;
+        std::cout << "[InferenceCore] Attention heads: " << metadata_->num_attention_heads << std::endl;
+        std::cout << "[InferenceCore] Max context: " << metadata_->max_position_embeddings << std::endl;
+        
+        max_context_length_ = metadata_->max_position_embeddings;
+    }
+    
+    // Load model weights
+    if (!loader_->load_weights(model_path)) {
+        std::cerr << "[InferenceCore] Failed to load weights from: " << model_path << std::endl;
+        return false;
+    }
+    
     model_loaded_ = true;
     model_path_ = model_path;
     

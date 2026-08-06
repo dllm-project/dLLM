@@ -32,7 +32,8 @@ src/cpp/
 ├── engine/
 │   ├── inference_core.cpp/hpp      # Main inference orchestration
 │   ├── layer_executor.cpp/hpp      # Layer-by-layer computation
-│   └── request_handler.cpp/hpp     # Request routing and batching
+│   ├── request_handler.cpp/hpp     # Request routing and batching
+│   └── model_loader.cpp/hpp        # Model format loading (GGUF/Safetensors)
 ├── tensor/
 │   ├── tensor.cpp/hpp              # Core tensor abstraction
 │   ├── ops/                        # Mathematical operations
@@ -54,6 +55,7 @@ src/cpp/
 - High-performance inference with SIMD optimizations
 - Memory-efficient tensor operations
 - Distributed cluster management
+- Model format parsing and weight loading (GGUF, Safetensors)
 
 ### Python Frontend (`src/python/`)
 
