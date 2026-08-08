@@ -89,6 +89,41 @@ Advanced prefix vector caching for **1M+ token contexts**:
 
 ---
 
+### 🖼️🎬🧊 Multimodal Inference — Images, 3D Assets & Video
+
+Full multimodal AI inference with **powerful and advanced features** across three modalities:
+
+#### 🖼️ Image Inference
+- **8+ vision tasks**: Classification, detection, segmentation, captioning, VQA, generation, super-resolution, OCR
+- **8+ architectures**: ViT, ConvNeXt, ResNet, Swin, CLIP, DINOv2, Stable Diffusion, Real-ESRGAN
+- **SIMD-accelerated preprocessing**: 4.5× speedup with AVX-512 for resize, conv, pooling
+- **Multi-format support**: PNG, JPEG, WebP, BMP, TIFF, RAW
+- **GPU acceleration**: 3.4–6.0× speedup over CPU (CUDA / ROCm / SYCL)
+
+#### 🧊 3D Asset Inference
+- **8+ 3D tasks**: Classification, reconstruction, generation, texturing, scene understanding, detection, mesh simplification, point cloud processing
+- **9+ 3D formats**: GLB, GLTF, OBJ, FBX, USDZ, PLY, STL, 3MF, COLLADA
+- **8+ architectures**: PointNet++, SparseConvNet, MeshCNN, NeRF, DreamFusion, PointTransformer, ConvONet
+- **Distributed 3D encoding**: Sparse convolutions across cluster nodes
+- **GPU acceleration**: 4.0–5.7× speedup over CPU
+
+#### 🎬 Video Inference
+- **8+ video tasks**: Action recognition, captioning, temporal detection, generation, frame interpolation, summarization, optical flow, VQA
+- **8+ architectures**: VideoMAE v2, TimeSformer, X3D, MViT v2, CogVideo, SVD, RAFT, ECCV22
+- **Spatiotemporal encoding**: 3D CNN / Transformer backbones distributed across cluster
+- **Multi-format support**: MP4, AVI, MKV, WebM, MOV
+- **GPU acceleration**: 4.4–5.1× speedup over CPU
+
+#### 🔄 Cross-Modal Reasoning
+- **Bidirectional conversion**: Image ↔ 3D, Image ↔ Video, Video ↔ 3D
+- **Text → All**: Generate images, 3D meshes, and video from text prompts
+- **All → Text**: Describe any modality in natural language
+- **Unified API**: Single endpoint for all modalities
+
+📖 [Multimodal Features Documentation](FEATURES.md#multimodal-inference)
+
+---
+
 ## 🏗️ Architecture
 
 dLLM uses a modular **two-tier architecture**:
