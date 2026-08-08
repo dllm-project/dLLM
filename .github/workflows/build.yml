@@ -1,5 +1,5 @@
 # dLLM CI/CD Pipeline
-# Build, test, and deploy dLLM on multiple platforms
+# Build, test, and deploy dLLM on remote build server
 
 name: Build and Deploy
 
@@ -11,14 +11,74 @@ on:
       - 'docs/**'
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  BUILD_SERVER: 192.168.10.7
+  BUILD_USER: saszel
+  BUILD_DIR: /home/saszel/dLLM-build
 
 jobs:
-  build-linux:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config:
+          - name: SSE4.2
+            cmake_flags: "-DUSE_SSE42=ON -DUSE_AVX=OFF -DUSE_AVX2=OFF"
+          - name: AVX2
+            cmake_flags: "-DUSE_SSE42=ON -DUSE_AVX=ON -DUSE_AVX2=ON"
+          - name: Release
+            cmake_flags: "-DUSE_SSE42=ON -DUSE_AVX=ON -DUSE_AVX2=ON -DCMAKE_BUILD_TYPE=Release"
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: SSH to build server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ env.BUILD_SERVER }}
+        username: ${{ env.BUILD_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          # Create build directory
+          mkdir -p ${{ env.BUILD_DIR }}
+          
+          # Clone repository if not exists
+          if [ ! -d "${{ env.BUILD_DIR }}/dLLM" ]; then
+            git clone https://github.com/${{ github.repository }}.git ${{ env.BUILD_DIR }}/dLLM
+          fi
+          
+          # Pull latest changes
+          cd ${{ env.BUILD_DIR }}/dLLM
+          git pull origin ${{ github.ref }}
+          
+          # Configure build
+          cd ${{ env.BUILD_DIR }}/dLLM/build
+          cmake ${{ matrix.config.cmake_flags }} ..
+          
+          # Build
+          make -j$(nproc)
+          
+          # Run tests if available
+          if [ -f "test" ]; then
+            ./test
+          fi
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dLLM-${{ matrix.config.name }}
+        path: |
+          ${{ env.BUILD_DIR }}/dLLM/build/libdllm.so
+          ${{ env.BUILD_DIR }}/dLLM/build/libdllm_engine.so
+          ${{ env.BUILD_DIR }}/dLLM/build/libdllm_tensor.so
+          ${{ env.BUILD_DIR }}/dLLM/build/libdllm_comm.so
+
+  build-python:
+    runs-on: ubuntu-latest
+    needs: build
     
     steps:
     - name: Checkout code
@@ -29,124 +89,39 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake g++ git libssl-dev
-        pip install pybind11 numpy pytest
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
 
-    - name: Build dLLM (SSE4.2)
+    - name: Build Python wheel
       run: |
-        mkdir build_sse42 && cd build_sse42
-        cmake -DCMAKE_BUILD_TYPE=Release \
-              -DUSE_SSE42=ON \
-              -DUSE_AVX=OFF \
-              -DUSE_AVX2=OFF \
-              ..
-        make -j$(nproc)
+        cd src/python
+        uv build --wheel
+        
+    - name: Upload Python wheel
+      uses: actions/upload-artifact@v4
+      with:
+        name: dLLM-python-wheel
+        path: src/python/dist/*.whl
 
-    - name: Build dLLM (AVX2)
-      run: |
-        mkdir build_avx2 && cd build_avx2
-        cmake -DCMAKE_BUILD_TYPE=Release \
-              -DUSE_SSE42=ON \
-              -DUSE_AVX=ON \
-              -DUSE_AVX2=ON \
-              ..
-        make -j$(nproc)
-
-    - name: Run tests (SSE4.2)
-      run: |
-        cd build_sse42
-        ctest --output-on-failure
-
-  build-fedora:
+  publish:
     runs-on: ubuntu-latest
-    container: fedora:44
+    needs: [build, build-python]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Install dependencies
-      run: |
-        dnf install -y gcc gcc-c++ make cmake3 python3 python3-pip git
-        pip3 install pybind11 numpy pytest
-
-    - name: Build with CUDA (Fedora)
-      run: |
-        mkdir build_cuda && cd build_cuda
-        cmake -DCMAKE_BUILD_TYPE=Release \
-              -DUSE_CUDA=ON \
-              -DUSE_AVX2=ON \
-              ..
-        make -j$(nproc)
-
-  deploy-production:
-    needs: [build-linux, build-fedora]
-    
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
       with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        path: artifacts
 
-    - name: Build and push Docker image
-      run: |
-        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
-        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
-        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} --all-tags
-
-  # Deploy to Node 1 (192.168.10.125) with rsync
-  deploy-node1-rsync:
-    needs: [build-linux, build-fedora]
-    
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Install rsync
-      run: sudo apt-get install -y rsync
-
-    - name: Sync source to Node 1 (AVX2+GPU)
-      uses: appleboy/rsync-action@v1.0.0
+    - name: Publish to PyPI
+      if: startsWith(github.event.head_commit.message, 'v')
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        host: 192.168.10.125
-        username: saszel
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: ./
-        target: /home/saszel/dLLM/
-        options: '-avz --delete-excluded --exclude-from=.gitignore'
-
-    - name: Build on Node 1 (AVX2 + GPU)
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: 192.168.10.125
-        username: saszel
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          cd /home/saszel/dLLM
-          
-          # Build AVX2 + CUDA version
-          mkdir -p build_avx2_gpu && cd build_avx2_gpu
-          cmake -DCMAKE_BUILD_TYPE=Release \
-                -DUSE_SSE42=ON \
-                -DUSE_AVX=ON \
-                -DUSE_AVX2=ON \
-                -DUSE_CUDA=ON \
-                ..
-          make -j$(nproc)
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages-dir: artifacts/dLLM-python-wheel/
           
           # Build SSE4.2 version for fallback
           cd /home/saszel/dLLM

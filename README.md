@@ -20,7 +20,7 @@
 
 ## 🚀 What is dLLM?
 
-**dLLM** is a high-performance, distributed AI inference engine that delivers **near-GPU performance on commodity CPU hardware**. By combining distributed computing across multiple servers, advanced SIMD vectorization (SSE4.2 → AVX-512), multi-vendor GPU acceleration, and intelligent KV cache optimization, dLLM enables cost-effective large language model inference at scale.
+**dLLM** is a high-performance, distributed AI inference engine that delivers **near-GPU performance on commodity CPU hardware**. By combining distributed computing across multiple servers, advanced SIMD vectorization (SSE4.2 → AVX2), multi-vendor GPU acceleration, and intelligent KV cache optimization, dLLM enables cost-effective large language model inference at scale.
 
 > 💡 **The problem**: GPU inference hardware is expensive and scarce. dLLM makes it possible to run large language models efficiently on widely available CPU infrastructure — achieving 90%+ of GPU performance at a fraction of the cost.
 
@@ -31,69 +31,65 @@
 ### 🧠 Model Format Support
 Load pre-trained models in multiple formats with automatic detection:
 
-| Format | Description |
-|--------|-------------|
-| **GGUF** | GGML Unified Format with quantization (Q2_K → Q8_K, F16, F32) |
-| **Safetensors** | Safe tensor serialization by Hugging Face |
-| **PyTorch** | Native `.pt` / `.pth` format |
+| Format | Description | Status |
+|--------|-------------|:------:|
+| **GGUF** | GGML Unified Format with quantization (Q2_K → Q8_K, F16, F32) | ✅ Implemented |
+| **Safetensors** | Safe tensor serialization by Hugging Face | ✅ Implemented |
+| **PyTorch** | Native `.pt` / `.pth` format | ✅ Implemented |
 
 📖 [Model Formats Documentation](MODEL_FORMATS.md)
 
-### ⚡ High-Performance Rust Tokenizer
-A custom tokenizer engine delivering **10×+ faster** tokenization than Python alternatives:
+### ⚡ High-Performance SIMD Vectorization
+Automatic instruction set detection and CPU-optimized inference:
 
-- **85K–92K tokens/s** throughput with AVX2/AVX-512 SIMD
-- **Zero-copy architecture** — only 1.1× input memory footprint
-- **Universal compatibility** — works with all LLM models (Llama, Mistral, Phi, Qwen, etc.)
-- **BPE / WordPiece / SentencePiece** support
+| Instruction Set | Vector Width | Status |
+|----------------|:------------:|:------:|
+| SSE4.2 | 128-bit | ✅ Implemented |
+| AVX | 256-bit | ✅ Implemented |
+| AVX2 + FMA | 256-bit | ✅ Implemented |
+| AVX-512 | 512-bit | 🔲 Planned (declared in enum) |
 
-### 🎮 Multi-Vendor GPU Acceleration
+### 🎮 Multi-Vendor GPU Acceleration (Planned)
 Hardware-accelerated inference across major GPU vendors:
 
-| Vendor | Backend | Minimum Version |
-|--------|---------|-----------------|
-| **NVIDIA** | CUDA + Tensor Cores | CUDA 11.4+, Pascal+ |
-| **AMD** | ROCm / HIP | ROCm 5.3+, GCN+ |
-| **Intel** | OneAPI / SYCL | OneAPI 2023.1+, Xe+ |
+| Vendor | Backend | Status |
+|--------|---------|:------:|
+| **NVIDIA** | CUDA + Tensor Cores | 🔲 Planned (CMake option only) |
+| **AMD** | ROCm / HIP | 🔲 Planned (CMake option only) |
+| **Intel** | OneAPI / SYCL | 🔲 Planned (CMake option only) |
 
 📖 [GPU Hardware Support](GPU_HARDWARE_SUPPORT.md)
 
-### 🖥️ CPU SIMD Vectorization
-Automatic instruction set detection and optimization:
-
-| Instruction Set | Vector Width | Performance Tier |
-|----------------|:------------:|:----------------:|
-| SSE4.2 | 128-bit | Baseline |
-| AVX | 256-bit | Standard |
-| AVX2 + FMA | 256-bit | Enhanced |
-| **AVX-512** | **512-bit** | **Maximum** |
-
-### 🌐 Distributed Computing
+### 🌐 Distributed Computing (Planned)
 Scale inference across multiple nodes with intelligent parallelism:
 
-- **Tensor Parallelism** — Split tensor operations across nodes
-- **Pipeline Parallelism** — Distributed layer-wise computation
-- **Hybrid Parallelism** — Combined tensor + pipeline strategies
+| Feature | Status |
+|---------|:------:|
+| **Tensor Parallelism** | 🔲 Planned (comm/ has no source files) |
+| **Pipeline Parallelism** | 🔲 Planned (comm/ has no source files) |
+| **Hybrid Parallelism** | 🔲 Planned (comm/ has no source files) |
+| **Cluster Management** | 🔲 Planned (comm/ has no source files) |
 
 📖 [Distributed Parallelism](HYBRID_PARALLELISM.md)
 
-### 🗄️ PV Cache — Intelligent KV Cache Optimization
+### 🗄️ PV Cache — Intelligent KV Cache Optimization (Planned)
 Advanced prefix vector caching for **1M+ token contexts**:
 
-- **60–80% memory reduction** in KV cache footprint
-- **2×+ throughput improvement** for long-context generation
-- **Cross-node distributed caching** for cluster-wide optimization
-- **Adaptive quantization** — dynamic precision based on attention patterns
+| Feature | Status |
+|---------|:------:|
+| **Core PV Cache** | 🔲 Planned (documentation only, no implementation) |
+| **Distributed PV Cache** | 🔲 Planned (documentation only, no implementation) |
+| **Adaptive Quantization** | 🔲 Planned (documentation only, no implementation) |
 
 📖 [PV Cache Documentation](PV_CACHE_README.md)
 
 ---
 
-### 🖼️🎬🧊 Multimodal Inference — Images, 3D Assets & Video
+### 🖼️🎬🧊 Multimodal Inference — Images, 3D Assets & Video (Planned)
 
 Full multimodal AI inference with **powerful and advanced features** across three modalities:
 
-#### 🖼️ Image Inference
+#### 🖼️ Image Inference (Planned)
 - **8+ vision tasks**: Classification, detection, segmentation, captioning, VQA, generation, super-resolution, OCR
 - **8+ architectures**: ViT, ConvNeXt, ResNet, Swin, CLIP, DINOv2, Stable Diffusion, Real-ESRGAN
 - **SIMD-accelerated preprocessing**: 4.5× speedup with AVX-512 for resize, conv, pooling
@@ -144,16 +140,18 @@ dLLM uses a modular **two-tier architecture**:
 │         │                              │                        │
 │         ▼                              ▼                        │
 │  OpenAI SDK Compatible          Distributed Nodes               │
-│                                  (SSE4.2 → AVX-512)             │
+│                                  (SSE4.2 → AVX2)                │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-| Layer | Technology | Role |
-|-------|-----------|------|
-| **Python Frontend** | FastAPI, Pydantic | OpenAI-compatible API, request routing |
-| **C++ Backend** | C++17, SIMD intrinsics | High-performance inference engine |
-| **Rust Tokenizer** | Rust, AVX2/AVX-512 | Ultra-fast text tokenization |
-| **GPU Backends** | CUDA / ROCm / SYCL | Hardware-accelerated computation |
+| Layer | Technology | Role | Status |
+|-------|-----------|------|:------:|
+| **Python Frontend** | FastAPI, Pydantic | OpenAI-compatible API, request routing | ✅ Implemented |
+| **C++ Backend** | C++17, SIMD intrinsics | High-performance inference engine | ✅ Implemented |
+| **pybind11 Bridge** | pybind11 | Python ↔ C++ interop layer | ✅ Implemented |
+| **Rust Tokenizer** | Rust, AVX2/AVX-512 | Ultra-fast text tokenization | 🔲 Planned (no source files) |
+| **GPU Backends** | CUDA / ROCm / SYCL | Hardware-accelerated computation | 🔲 Planned (CMake options only) |
+| **Distributed Comm** | TCP/IP, RPC | Cluster communication layer | 🔲 Planned (no source files) |
 
 📖 [Full Architecture Documentation](ARCHITECTURE.md)
 
@@ -163,26 +161,28 @@ dLLM uses a modular **two-tier architecture**:
 
 ### CPU Inference vs GPU Baseline
 
-| Model | GPU (ms) | dLLM 4-Node (ms) | Performance Ratio |
-|-------|:--------:|:----------------:|:-----------------:|
-| GPT-2 Small (117M) | 45 | 48 | **94%** |
-| Llama-7B | 850 | 920 | **92%** |
-| Mistral-7B | 780 | 840 | **93%** |
-| Falcon-40B | 3,100 | 3,400 | **91%** |
+| Model | GPU (ms) | dLLM 4-Node (ms) | Performance Ratio | Status |
+|-------|:--------:|:----------------:|:-----------------:|:------:|
+| GPT-2 Small (117M) | 45 | 48 | **94%** | 🔲 Planned |
+| Llama-7B | 850 | 920 | **92%** | 🔲 Planned |
+| Mistral-7B | 780 | 840 | **93%** | 🔲 Planned |
+| Falcon-40B | 3,100 | 3,400 | **91%** | 🔲 Planned |
 
-### PV Cache Performance
+> **Note**: Distributed computing features (4-node inference) are planned but not yet implemented. Current performance targets single-node CPU inference with SIMD optimization.
 
-| Context Size | Memory Savings | Throughput Speedup |
-|:------------:|:--------------:|:------------------:|
-| 1M tokens | **75%** (40 GB → 10 GB) | **2.1×** |
-| 2M tokens | **75%** (80 GB → 20 GB) | **2.25×** |
+### PV Cache Performance (Planned)
 
-### Rust Tokenizer Speed
+| Context Size | Memory Savings | Throughput Speedup | Status |
+|:------------:|:--------------:|:------------------:|:------:|
+| 1M tokens | **75%** (40 GB → 10 GB) | **2.1×** | 🔲 Planned |
+| 2M tokens | **75%** (80 GB → 20 GB) | **2.25×** | 🔲 Planned |
 
-| Metric | HuggingFace (Python) | dLLM Rust Tokenizer |
-|--------|:--------------------:|:-------------------:|
-| Throughput | ~500K tokens/s | **15M+ tokens/s** |
-| Memory | 2–4× input size | **1.1× input size** |
+### Rust Tokenizer Speed (Planned)
+
+| Metric | HuggingFace (Python) | dLLM Rust Tokenizer | Status |
+|--------|:--------------------:|:-------------------:|:------:|
+| Throughput | ~500K tokens/s | **15M+ tokens/s** | 🔲 Planned |
+| Memory | 2–4× input size | **1.1× input size** | 🔲 Planned |
 
 📖 [Full Performance Benchmarks](PERFORMANCE.md)
 
@@ -197,7 +197,6 @@ dLLM uses a modular **two-tier architecture**:
 | **Compiler** | GCC 11+ / Clang 14+ |
 | **CMake** | 3.20+ |
 | **Python** | 3.8+ |
-| **Rust** | 1.70+ (for tokenizer) |
 
 ### 1. Clone & Install
 
@@ -214,19 +213,12 @@ pip install -r requirements.txt
 ```bash
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
-      -DUSE_AVX512=ON \
+      -DUSE_AVX2=ON \
       ..
 make -j$(nproc)
 ```
 
-### 3. Build the Rust Tokenizer (Optional)
-
-```bash
-cd tokenizer
-cargo build --release --features avx2
-```
-
-### 4. Start the Server
+### 3. Start the Server
 
 ```bash
 cd src/python

@@ -9,7 +9,7 @@
 - **Network**: Gigabit Ethernet (1 Gbps)
 - **Python**: 3.8+
 
-### GPU Minimum Requirements
+### GPU Minimum Requirements (🔲 Planned)
 
 #### NVIDIA GPUs
 - **CUDA Version**: 11.4+
@@ -40,31 +40,17 @@ This project does NOT use AVX-512 instruction set. All builds are optimized for:
 
 **No AVX-512 support**: This project intentionally excludes AVX-512 to maintain compatibility with production homelab systems.
 
-## Production Build Environments
+## Target Build Server
 
-### Node 1 - Production (192.168.10.125)
 | Component | Specification |
 |-----------|--------------|
-| OS | Fedora Linux 44 (Server Edition) |
-| CPU | Intel Core i9-14900KF (SSE4.2 → AVX2, no AVX-512 enabled) |
-| GPU | NVIDIA GeForce GTX 1060 6GB (Pascal, CC 6.1) |
-| Build Type | Release with CUDA support |
+| Server IP | 192.168.10.7 |
+| User | saszel |
+| OS | Linux (Ubuntu/Fedora) |
+| CPU | x86_64 with SSE4.2/AVX2 support |
+| GPU | None (CPU-only builds) |
 
-### Node 2 - SSE4.2 Only (192.168.10.5)
-| Component | Specification |
-|-----------|--------------|
-| OS | Ubuntu 26.04 LTS |
-| CPU | Intel Xeon X5570 (SSE4.2 only, no AVX/AVX2) |
-| GPU | None |
-| Build Type | Release with SSE4.2 only |
-
-### CI/CD Pipeline
-- **Host**: GitHub Actions
-- **Runner Environment**: Ubuntu latest container
-- **Build Matrix**: SSE4.2, AVX2 configurations
-- **Deployment**: Production node via SSH
-
-For detailed build instructions for each environment, see [BUILD.md](BUILD.md).
+For detailed build instructions, see [BUILD.md](BUILD.md).
 
 ## Prerequisites
 
@@ -72,7 +58,7 @@ For detailed build instructions for each environment, see [BUILD.md](BUILD.md).
 | Compiler | Version | Features |
 |----------|---------|----------|
 | GCC | 11+ | Full C++17 support |
-| Clang | 14+ | Full C++17 support + AVX512 |
+| Clang | 14+ | Full C++17 support |
 | MSVC | 19.30+ | Visual Studio 2022 |
 
 ### Python Dependencies
@@ -81,22 +67,22 @@ For detailed build instructions for each environment, see [BUILD.md](BUILD.md).
 pip install fastapi uvicorn pydantic numpy pybind11 openai
 ```
 
-### Rust Toolchain (for Tokenizer)
+### uv Package Manager (for Wheel Building)
 
-The dLLM Rust tokenizer requires:
+For Python wheel packaging and PyPI releases:
 
-- **Rust 1.70+**: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
-- **Cargo**: Cargo package manager (included with Rust)
-- **CMake 3.20+**: For FFI bindings
+- **uv**: Modern Python package manager
+- **CMake 3.20+**: For C++ build integration
 
 ```bash
-# Check Rust installation
-rustc --version
-cargo --version
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Update to latest stable
-rustup update stable
+# Verify installation
+uv --version
 ```
+
+> **Note**: The Rust tokenizer is planned for future implementation and is not required for current builds.
 
 ### Build the Rust Tokenizer
 

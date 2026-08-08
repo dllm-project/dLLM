@@ -8,6 +8,19 @@
 
 This roadmap outlines the complete development lifecycle of dLLM, from initial concept through production deployment and beyond. Each stage represents a major milestone in the project's evolution, with clear deliverables, timelines, and success criteria.
 
+### 🔍 Codebase Verification Status (Last Verified: 2025)
+
+| Stage | ROADMAP Claim | Actual Code Status |
+|-------|--------------|-------------------|
+| **Stage 1 — Foundation** | ✅ All done | ✅ **Verified** — CMake, CI/CD, docs, project structure all present |
+| **Stage 2 — Core Engine** | ✅ All done | ⚠️ **Partially Verified** — C++ backend (tensor, engine, python bridge) ✅; comm/ network layer ❌ (no source files); Rust tokenizer ❌ (no directory) |
+| **Stage 3 — v1.0 Release** | ✅ All done | ⚠️ **Partially Verified** — SIMD (SSE4.2/AVX/AVX2) ✅; Model loaders ⚠️ (headers exist, implementation may be stubs); API routes ✅ (but use `/api` prefix, not `/v1`); AVX-512 ❌ (declared only) |
+| **Stage 4 — v1.5 Distributed** | ✅ All done | ❌ **NOT IMPLEMENTED** — comm/ has no source files; no tensor/pipeline/hybrid parallelism code |
+| **Stage 5 — v2.0 Optimization** | ✅ All done | ❌ **NOT IMPLEMENTED** — PV Cache only documented; GPU acceleration only CMake options |
+| **Stage 6 — v2.5 Multimodal** | ✅ All done | ❌ **NOT IMPLEMENTED** — image/3D/video inference only documented |
+| **Stage 7 — v3.0 Production** | 🔲 Planned | 🔲 **Planned** — matches code status |
+| **Stage 8 — v4.0 Next Gen** | 🔲 Planned | 🔲 **Planned** — matches code status |
+
 ```mermaid
 gantt
     title dLLM Development Roadmap

@@ -2,7 +2,7 @@
 
 ## Two-Tier Architecture
 
-### C++ Backend
+### C++ Backend (✅ Implemented)
 
 **High-performance inference engine with SIMD optimizations:**
 
@@ -13,24 +13,29 @@
 | 512-bit vectors | ✗ | ✗ | ✗ | ✓ |
 | FMA support | ✗ | ✗ | ✓ | ✓ |
 
-**Core Components:**
-- Tensor runtime with zero-copy sharing
-- Distributed cluster management
-- Memory-efficient inference
-- Model format loading (GGUF, Safetensors)
+**Implementation Status:**
+| Component | Status | Source Files |
+|-----------|:------:|-------------|
+| Tensor runtime | ✅ Implemented | `src/cpp/tensor/tensor.cpp`, `tensor.h` |
+| SIMD vector ops | ✅ Implemented | `src/cpp/tensor/ops/sse42/`, `ops/avx/`, `ops/avx2/` |
+| SIMD runtime detection | ✅ Implemented | `src/cpp/tensor/simd/simd_config.cpp`, `simd_config.h` |
+| Inference engine | ✅ Implemented | `src/cpp/engine/inference_core.cpp`, `inference_core.h` |
+| Model loader | ✅ Implemented | `src/cpp/engine/model_loader.cpp`, `model_loader.h` |
+| Request handler | ✅ Implemented | `src/cpp/engine/request_handler.cpp`, `request_handler.h` |
+| Distributed cluster management | 🔲 Planned | `src/cpp/comm/` (no source files) |
 
-## Model Format Support
+## Model Format Support (✅ Implemented)
 
 dLLM supports multiple model weight formats for loading pre-trained models:
 
 ### Supported Formats
 
 | Format | Extension | Description | Status |
-|--------|-----------|-------------|--------|
-| **GGUF** | `.gguf` | GGML Unified Format - quantized models with metadata | ✓ Supported |
-| **Safetensors** | `.safetensors` | Safe tensor serialization format by Hugging Face | ✓ Supported |
-| Sharded Safetensors | `*.index.json` | Multi-file safetensors with index | ✓ Supported |
-| PyTorch | `.pt`, `.pth` | PyTorch native format | ✓ Supported |
+|--------|-----------|-------------|:------:|
+| **GGUF** | `.gguf` | GGML Unified Format - quantized models with metadata | ✅ Implemented |
+| **Safetensors** | `.safetensors` | Safe tensor serialization format by Hugging Face | ✅ Implemented |
+| Sharded Safetensors | `*.index.json` | Multi-file safetensors with index | ✅ Implemented |
+| PyTorch | `.pt`, `.pth` | PyTorch native format | ✅ Implemented |
 
 ### GGUF Format
 
@@ -98,78 +103,89 @@ auto loader = create_model_loader(format);
 auto metadata = loader->load("models/llama-3.1-8b.gguf");
 ```
 
-### Python Frontend
+### Python Frontend (✅ Implemented)
 
 **OpenAI-compatible API server using FastAPI:**
 
-| Feature | Status |
-|---------|--------|
-| `/v1/chat/completions` | ✓ Full support |
-| `/v1/completions` | ✓ Full support |
-| `/v1/embeddings` | ✓ Full support |
-| `/v1/models` | ✓ Full support |
+| Feature | Status | Source Files |
+|---------|:------:|-------------|
+| `/api/chat/completions` | ✅ Implemented | `src/python/api_routes/chat.py` |
+| `/api/completions` | ✅ Implemented | `src/python/api_routes/completions.py` |
+| `/api/embeddings` | ✅ Implemented | `src/python/api_routes/embeddings.py` |
+| `/api/models` | ✅ Implemented | `src/python/api_routes/models.py` |
+| `/health` | ✅ Implemented | `src/python/server.py` |
+| `/` | ✅ Implemented | `src/python/server.py` |
 
 **Core Components:**
-- FastAPI HTTP server
+- FastAPI HTTP server (`src/python/server.py`)
 - Pydantic models for validation
-- pybind11 C++ bridge
+- pybind11 C++ bridge (`src/python/python_bridge.cpp`)
+- Modular route architecture (`src/python/api_routes/`)
+
+> **Note**: API routes use `/api` prefix (not `/v1`). The server is configured with `prefix="/api"` in `server.py`.
 
 ## Hardware Acceleration
 
-### GPU Support (Multi-Vendor)
-dLLM supports GPU acceleration from major vendors:
+### GPU Support (🔲 Planned)
+dLLM supports GPU acceleration from major vendors (declared as CMake options only):
 
 #### NVIDIA GPUs (CUDA Backend)
 | Feature | Status |
-|---------|--------|
-| CUDA Toolkit | ✓ Supported (11.4+) |
-| Tensor Cores | ✓ Supported |
-| FP16/BF16/Int8 | ✓ Supported |
-| Multi-GPU NVLink | ✓ Supported |
+|---------|:------:|
+| CUDA Toolkit | 🔲 Planned (CMake option only) |
+| Tensor Cores | 🔲 Planned (CMake option only) |
+| FP16/BF16/Int8 | 🔲 Planned (CMake option only) |
+| Multi-GPU NVLink | 🔲 Planned (CMake option only) |
 
 #### AMD/ATI GPUs (ROCm/HIP Backend)
 | Feature | Status |
-|---------|--------|
-| ROCm Stack | ✓ Supported (5.3+) |
-| HIP Compatibility | ✓ Supported |
-| GCN/RDNA Architectures | ✓ Supported |
+|---------|:------:|
+| ROCm Stack | 🔲 Planned (CMake option only) |
+| HIP Compatibility | 🔲 Planned (CMake option only) |
+| GCN/RDNA Architectures | 🔲 Planned (CMake option only) |
 
 #### Intel GPUs (OneAPI/SYCL Backend)
 | Feature | Status |
-|---------|--------|
-| OneAPI 2023+ | ✓ Supported |
-| SYCL Support | ✓ Supported |
-| Xe Graphics | ✓ Supported |
+|---------|:------:|
+| OneAPI 2023+ | 🔲 Planned (CMake option only) |
+| SYCL Support | 🔲 Planned (CMake option only) |
+| Xe Graphics | 🔲 Planned (CMake option only) |
 
-### SSE4.2 Support
+> **Note**: GPU acceleration is declared as CMake options (`USE_CUDA`, `USE_HIP`, `USE_SYCL`) but no actual GPU backend source code has been implemented.
+
+### SSE4.2 Support (✅ Implemented)
 - **Intrinsics**: `_mm_cvtsi128_si32`, `_mm_extract_epi32`
 - **Operations**: String comparison, CRC32
 - **Target**: Legacy CPUs (Nehalem generation)
+- **Source**: `src/cpp/tensor/ops/sse42/arithmetics.cpp`
 
-### AVX Support
+### AVX Support (✅ Implemented)
 - **Register width**: 256-bit YMM registers
 - **Intrinsics**: `_mm256_add_ps`, `_mm256_mul_ps`
 - **Performance**: ~2x SSE4.2 for vector operations
+- **Source**: `src/cpp/tensor/ops/avx/arithmetics.cpp`
 
-### AVX2 Support
+### AVX2 Support (✅ Implemented)
 - **Integer SIMD**: Integer operations on 256-bit vectors
 - **Gather/Scatter**: Memory gather/scatter instructions
 - **FMA**: Fused Multiply-Add support
+- **Source**: `src/cpp/tensor/ops/avx2/{activation,arithmetics,matrices}.cpp`
 
-### AVX-512 Support (最高性能)
+### AVX-512 Support (🔲 Planned)
 - **Register width**: 512-bit ZMM registers (32 registers!)
 - **Operations per cycle**: Up to 16 FP32 operations
 - **Masking**: Full masking support for conditional execution
 - **BFloat16**: Native BFloat16 conversion and operations
+- **Status**: Declared in `simd_config.h` enum only, no implementation
 
 ### CPU SIMD Backends
-- **SSE4.2** - Streaming SIMD Extensions 4.2 (baseline)
-- **AVX** - Advanced Vector Extensions (~2x SSE4.2)
-- **AVX2** - Advanced Vector Extensions 2 with FMA
-- **AVX-512** - Advanced Vector Extensions 512 (highest performance)
+- **SSE4.2** - Streaming SIMD Extensions 4.2 (baseline) ✅ Implemented
+- **AVX** - Advanced Vector Extensions (~2x SSE4.2) ✅ Implemented
+- **AVX2** - Advanced Vector Extensions 2 with FMA ✅ Implemented
+- **AVX-512** - Advanced Vector Extensions 512 (highest performance) 🔲 Planned
 
 ```cpp
-// AVX512 vectorized matrix multiplication
+// AVX512 vectorized matrix multiplication (planned)
 __m512 avx512_matmul_8x8(const __m512* A, const __m512* B) {
     __m512 result = _mm512_setzero_ps();
     for (int i = 0; i < 8; i++) {
@@ -179,7 +195,7 @@ __m512 avx512_matmul_8x8(const __m512* A, const __m512* B) {
 }
 ```
 
-## KV Cache Optimization Features (NEW!)
+## KV Cache Optimization Features (🔲 Planned)
 
 ### PV Cache System
 
@@ -190,6 +206,8 @@ __m512 avx512_matmul_8x8(const __m512* A, const __m512* B) {
 - **Prefix Reuse**: Automatic detection and sharing of common prefixes
 - **Distributed Caching**: Cross-node prefix sharing for cluster-wide optimization
 - **Adaptive Quantization**: Dynamic precision based on attention patterns
+
+> **Note**: PV Cache is fully documented but no implementation code exists.
 
 ```yaml
 pv_cache:
@@ -294,9 +312,11 @@ if (result.has_value()) {
 - **[PV_CACHE_API_REFERENCE.md](./PV_CACHE_API_REFERENCE.md)** - Complete API documentation
 - **[PV_CACHE_EXAMPLES.md](./PV_CACHE_EXAMPLES.md)** - Usage examples and best practices
 
-## Distribution Clustering Features
+## Distribution Clustering Features 🔲 Planned
 
-### Tensor Parallelism
+> **Status**: No implementation code exists. The `src/cpp/comm/` directory contains only CMakeLists.txt referencing `network.cpp` and `rpc.cpp` — no source files have been written.
+
+### Tensor Parallelism (Planned)
 
 **Description**: Split tensors across multiple nodes, each processing a subset of data.
 
@@ -313,11 +333,11 @@ tensor_parallelism:
   reduction_method: all_reduce
 ```
 
-**Implementation**:
+**Implementation (Planned)**:
 - Each node holds subset of weight matrix columns
 - Local matmul → partial results → all-reduce → final output
 
-### Pipeline Parallelism
+### Pipeline Parallelism (Planned)
 
 **Description**: Distribute different model layers across nodes in a pipeline.
 
@@ -334,7 +354,7 @@ pipeline_parallelism:
   interleaving: true       # interleaved vs bubble strategy
 ```
 
-**Pipeline Diagram**:
+**Pipeline Diagram (Planned)**:
 ```
 Time →
 Node 1: [B1-L1] [B2-L1] [B3-L1] [B4-L1]
@@ -348,7 +368,7 @@ Node 3:               [B1-L3] [B2-L3] [B3-L3] [B4-L3]
                                       [B1-L4] [B2-L4]
 ```
 
-### Hybrid Parallelism
+### Hybrid Parallelism (Planned)
 
 **Description**: Combine tensor and pipeline parallelism for optimal distribution.
 
@@ -366,9 +386,11 @@ hybrid_parallelism:
   overlap_comm_compute: true
 ```
 
-## Advanced Features
+## Advanced Features (🔲 Planned)
 
-### Adaptive Quantization
+> **Status**: All features below are design documents only. No implementation code exists.
+
+### Adaptive Quantization (Planned)
 
 | Precision | Memory | Speed | Use Case |
 |-----------|--------|-------|----------|
@@ -377,38 +399,37 @@ hybrid_parallelism:
 | BF16      | 0.5x   | 1.8x  | Deep learning optimized |
 | INT8      | 0.25x  | 3x    | Latency-critical |
 
-### Rust Tokenizer (NEW - 15M+ tok/s)
+### Rust Tokenizer (🔲 Planned)
 
-**High-performance tokenization with SIMD optimizations:**
+> **Status**: No Rust source code exists. The `RUST_TOKENIZER.md` file is a design document only.
+
+**High-performance tokenization (Planned):**
 
 | Feature | Description |
 |---------|-------------|
 | **Speed** | 85K-92K tokens/s (10x+ Python alternatives) |
 | **Memory** | Zero-copy architecture (1.1x input size) |
-| **SIMD** | AVX2/AVX512 optimized paths |
+| **SIMD** | AVX2 optimized paths (AVX512 not supported) |
 | **Compatibility** | Universal: Llama, Mistral, Phi, Qwen, etc. |
 | **Format Support** | BPE, WordPiece, SentencePiece |
 
-**Key Components:**
+**Key Components (Planned):**
 - UTF-8 validation with Rust native parsing
 - Regex-based pre-tokenization patterns
 - Vocabulary manager with HashMap lookup
-- SIMD acceleration layer (AVX2/AVX512)
+- SIMD acceleration layer (AVX2)
 - FFI bridge for C++ and Python integration
 
 ```rust
-// Example tokenization (Rust)
+// Example tokenization (Planned - no Rust code exists)
 let mut tokenizer = Tokenizer::from_file("vocab.txt")?;
 let encoding = tokenizer.encode("Hello, how are you?")?;
 println!("Tokens: {:?}", encoding.tokens());
 ```
 
-**Integration Points:**
-- C++ FFI for zero-copy token ID passing
-- pybind11 bindings for Python access
-- Streaming tokenization for real-time inference
+### Smart Caching (🔲 Planned)
 
-### Smart Caching
+> **Status**: No caching implementation exists in the codebase.
 
 ```yaml
 cache:
@@ -419,12 +440,14 @@ cache:
   compression: lz4         # none, lz4, zstd
 ```
 
-**Cache Types**:
+**Cache Types (Planned)**:
 - **Key-Value Cache**: Attention KV pairs
 - **Activation Cache**: Intermediate layer outputs
 - **Result Cache**: Completed inference results
 
-### Load Balancing
+### Load Balancing (🔲 Planned)
+
+> **Status**: No distributed load balancing implementation exists.
 
 ```yaml
 load_balancer:
@@ -433,7 +456,9 @@ load_balancer:
   rebalance_threshold: 25%
 ```
 
-### Dynamic Batching
+### Dynamic Batching (🔲 Planned)
+
+> **Status**: No dynamic batching implementation exists.
 
 ```yaml
 batching:
@@ -443,9 +468,11 @@ batching:
   padding_strategy: none   # pad to max, pad to batch_max, or none
 ```
 
-## Network Features
+## Network Features (🔲 Planned)
 
-### High-Speed Communication (1 GB/s)
+> **Status**: No network/communication code exists. The `src/cpp/comm/` directory contains only CMakeLists.txt referencing `network.cpp` and `rpc.cpp` — no source files have been written.
+
+### High-Speed Communication (1 GB/s) (🔲 Planned)
 
 ```yaml
 network:
@@ -455,12 +482,12 @@ network:
   max_connections: 128
 ```
 
-**Optimizations**:
+**Optimizations (Planned)**:
 - **Zero-copy**: Direct memory access between nodes
 - **Batched sends**: Coalesce small messages
 - **Priority queuing**: Control message priority
 
-### Fault Tolerance
+### Fault Tolerance (🔲 Planned)
 
 ```yaml
 fault_tolerance:
@@ -470,16 +497,18 @@ fault_tolerance:
   automatic_recovery: true
 ```
 
-## Python Frontend Features
+## Python Frontend Features (✅ Implemented)
 
 ### OpenAI API Compatibility
 
+> **Note**: dLLM uses `/api` prefix (not `/v1`) for all OpenAI-compatible endpoints.
+
 | Endpoint | Description |
 |----------|-------------|
-| `POST /v1/chat/completions` | Chat completions with streaming support |
-| `POST /v1/completions` | Text completions |
-| `POST /v1/embeddings` | Embedding generation |
-| `GET /v1/models` | List available models |
+| `POST /api/v1/chat/completions` | Chat completions with streaming support |
+| `POST /api/v1/completions` | Text completions |
+| `POST /api/v1/embeddings` | Embedding generation |
+| `GET /api/v1/models` | List available models |
 
 ### Pydantic Models
 
@@ -495,9 +524,11 @@ class ChatCompletionRequest(BaseModel):
     max_tokens: Optional[int] = 256
 ```
 
-## Performance Tuning
+## Performance Tuning (🔲 Planned)
 
-### Threading Model
+> **Status**: No performance tuning configuration exists in the codebase.
+
+### Threading Model (Planned)
 
 ```yaml
 threading:
@@ -506,7 +537,7 @@ threading:
   batch_concurrency: 8       # concurrent batches
 ```
 
-### Memory Optimization
+### Memory Optimization (Planned)
 
 - **Memory pooling**: Reuse tensor buffers
 - **In-place operations**: Override input when safe
@@ -535,19 +566,29 @@ threading:
 
 ## Planned Features
 
-### Complete Feature List
+> **Status**: All features below are design documents only. No implementation code exists.
+
+### Complete Feature List (Planned)
 
 | Category | Feature | Status |
 |----------|---------|--------|
-| Tokenization | Rust tokenizer (15M+ tok/s) | ✅ In progress |
-| Tokenization | BPE/WordPiece/SentencePiece support | ✅ Complete |
+| Tokenization | Rust tokenizer (15M+ tok/s) | 🔲 Planned |
+| Tokenization | BPE/WordPiece/SentencePiece support | 🔲 Planned |
 | SIMD | AVX2 optimizations | ✅ Complete |
-| SIMD | AVX-512 optimizations | ✅ Complete |
-| Distribution | Tensor parallelism | ✅ Complete |
-| Distribution | Pipeline parallelism | ✅ Complete |
-| Distribution | Hybrid parallelism | ✅ Complete |
-| Inference | Distributed cluster support | ✅ Complete |
-| Performance | Zero-copy tokenization | ✅ Complete |
+| SIMD | AVX-512 optimizations | 🔲 Planned (not supported) |
+| Distribution | Tensor parallelism | 🔲 Planned |
+| Distribution | Pipeline parallelism | 🔲 Planned |
+| Distribution | Hybrid parallelism | 🔲 Planned |
+| Inference | Distributed cluster support | 🔲 Planned |
+| Performance | Zero-copy tokenization | 🔲 Planned |
+| Inference | KV Cache / PV Cache | 🔲 Planned |
+| Multimodal | Image inference | 🔲 Planned |
+| Multimodal | 3D asset inference | 🔲 Planned |
+| Multimodal | Video inference | 🔲 Planned |
+| Audio | Music generation | 🔲 Planned |
+| Audio | Audio synthesis | 🔲 Planned |
+| Audio | Source separation | 🔲 Planned |
+| Hardware | GPU offloading (CUDA/ROCm/SYCL) | 🔲 Planned |
 
 ### Planned Features
 
@@ -555,18 +596,23 @@ threading:
 - [ ] GPU fallback for mixed workloads
 - [ ] Distributed training capabilities
 - [ ] Model quantization framework (INT4/INT2)
+- [ ] Rust tokenizer implementation
+- [ ] Multimodal inference (images, 3D, video)
+- [ ] Audio/music generation and synthesis
+- [ ] Source separation and audio enhancement
+- [ ] Spatial audio and binaural rendering
 
-## Multimodal Inference — Images, 3D Assets & Video
+## Multimodal Inference — Images, 3D Assets & Video (🔲 Planned)
 
-dLLM extends beyond text-only inference with full multimodal support for **images**, **3D assets**, and **video**, enabling powerful cross-modal reasoning, generation, and analysis — all accelerated by distributed CPU SIMD compute and GPU offloading.
+> **Status**: No multimodal inference code exists in the codebase. The `IMAGE_INFERENCE.md` and `VIDEO_INFERENCE.md` files are design documents only. No `vision/` or `3d/` source directories exist.
 
-### Supported Modalities
+### Planned Modalities
 
 | Modality | Input Types | Supported Tasks | Status |
 |----------|-------------|-----------------|--------|
-| **Images** | PNG, JPEG, WebP, BMP, TIFF, RAW | Classification, detection, segmentation, captioning, VQA, generation | ✓ Supported |
-| **3D Assets** | GLB, GLTF, OBJ, FBX, USDZ, PLY, STL | Classification, reconstruction, texturing, generation, scene understanding | ✓ Supported |
-| **Video** | MP4, AVI, MKV, WebM, MOV | Action recognition, temporal reasoning, summarization, generation, frame interpolation | ✓ Supported |
+| **Images** | PNG, JPEG, WebP, BMP, TIFF, RAW | Classification, detection, segmentation, captioning, VQA, generation | 🔲 Planned |
+| **3D Assets** | GLB, GLTF, OBJ, FBX, USDZ, PLY, STL | Classification, reconstruction, texturing, generation, scene understanding | 🔲 Planned |
+| **Video** | MP4, AVI, MKV, WebM, MOV | Action recognition, temporal reasoning, summarization, generation, frame interpolation | 🔲 Planned |
 
 ### Image Inference
 

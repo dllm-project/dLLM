@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=64.0", "wheel", "pybind11>=2.11.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dLLM"
+version = "1.0.0"
+description = "Distributed CPU AI Inference Engine with SIMD optimization"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "dLLM Team", email = "dllm-project@example.com"}
+]
+maintainers = [
+    {name = "dLLM Team", email = "dllm-project@example.com"}
+]
+keywords = ["llm", "inference", "cpu", "simd", "distributed", "ai"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: C++",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.20.0",
+    "pybind11>=2.11.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0.0",
+    "scipy>=1.7.0",
+]
+server = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "pydantic>=2.0.0",
+    "openai>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/dllm-project/dLLM"
+Documentation = "https://github.com/dllm-project/dLLM#readme"
+Repository = "https://github.com/dllm-project/dLLM"
+Issues = "https://github.com/dllm-project/dLLM/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src/python"}
+packages = ["dllm", "dllm.api_routes"]
+
+[tool.setuptools.ext-modules]
+dllm_cpp = {
+    sources = ["src/python/python_bridge.cpp"],
+    include-dirs = [
+        "src/cpp",
+        "src/cpp/tensor",
+        "src/cpp/engine",
+        "src/cpp/comm",
+    ],
+    extra-compile-args = [
+        "-O3",
+        "-DNDEBUG",
+        "-DUSE_SSE42=1",
+        "-DUSE_AVX=1",
+        "-DUSE_AVX2=1",
+    ],
+}
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=6.0.0",
+    "scipy>=1.7.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

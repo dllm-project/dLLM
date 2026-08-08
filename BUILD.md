@@ -4,89 +4,47 @@ This document describes how to set up the dLLM build environment on different pl
 
 ## Build Environment Overview
 
-### Production Node (192.168.10.125)
+### Target Build Server
 | Component | Specification |
 |-----------|--------------|
-| Server IP | 192.168.10.125 |
-| OS | Fedora Linux 44 (Server Edition) |
-| CPU | Intel Core i9-14900KF |
-| GPU | NVIDIA GeForce GTX 1060 6GB (Pascal, CC 6.1) |
-| Instruction Set | SSE4.2 → AVX2 + CUDA |
+| Server IP | 192.168.10.7 |
+| User | saszel |
+| OS | Linux (Ubuntu/Fedora) |
+| CPU | x86_64 with SSE4.2/AVX2 support |
+| GPU | None (CPU-only builds) |
+| Instruction Set | SSE4.2 → AVX2 |
 
-### SSE4.2 Node (192.168.10.5)
-| Component | Specification |
-|-----------|--------------|
-| Server IP | 192.168.10.5 |
-| OS | Ubuntu 26.04 LTS |
-| CPU | Intel Xeon X5570 |
-| GPU | None |
-| Instruction Set | SSE4.2 only |
+> **Note**: GPU acceleration (CUDA/ROCm/SYCL) is declared as CMake options but not yet implemented.
 
-## Building on Production Node (192.168.10.125)
+## Building on Target Server (192.168.10.7)
 
 ### Prerequisites
-- SSH access to the server
+- SSH access to the server (`ssh saszel@192.168.10.7`)
 - sudo privileges
 
 ### Installation Steps
 
 ```bash
-# Connect to production node
-ssh saszel@192.168.10.125
+# Connect to build server
+ssh saszel@192.168.10.7
 
 # Install system dependencies (if not already installed)
-sudo dnf install -y \
-    build-essential cmake git libssl-dev \
-    libboost-all-dev libnuma-dev python3-dev \
-    gcc gcc-c++ make
-
-# Verify installations
-cmake --version  # Should be 3.20+
-gcc --version    # Should be GCC 11+
-
-# Build with CUDA support (GTX 1060 Pascal)
-mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release \
-      -DUSE_AVX2=ON \
-      -DUSE_CUDA=ON \
-      ..
-make -j$(nproc)
-
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Test the build
-ls -la lib/
-```
-
-## Building on SSE4.2 Node (192.168.10.5)
-
-### Prerequisites
-- SSH access to the server
-- sudo privileges
-
-### Installation Steps
-
-```bash
-# Connect to SSE4.2 node
-ssh saszel@192.168.10.5
-
-# Update package list and install dependencies
 sudo apt-get update
 sudo apt-get install -y \
     build-essential cmake git libssl-dev \
-    python3-pip python3-venv
+    python3-dev python3-pip \
+    gcc g++ make
 
 # Verify installations
 cmake --version  # Should be 3.20+
 gcc --version    # Should be GCC 11+
 
-# Build with SSE4.2 only (no AVX/AVX2)
+# Build with AVX2 support
 mkdir -p build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
       -DUSE_SSE42=ON \
-      -DUSE_AVX=OFF \
-      -DUSE_AVX2=OFF \
+      -DUSE_AVX=ON \
+      -DUSE_AVX2=ON \
       ..
 make -j$(nproc)
 
@@ -98,6 +56,60 @@ ls -la lib/
 ```
 
 ## Building with Different Instruction Sets
+
+### SSE4.2 Only (Baseline)
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DUSE_SSE42=ON \
+      -DUSE_AVX=OFF \
+      -DUSE_AVX2=OFF \
+      ..
+```
+
+### AVX + AVX2 (Recommended)
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DUSE_SSE42=ON \
+      -DUSE_AVX=ON \
+      -DUSE_AVX2=ON \
+      ..
+```
+
+### With CUDA Support (Planned)
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DUSE_SSE42=ON \
+      -DUSE_AVX=ON \
+      -DUSE_AVX2=ON \
+      -DUSE_CUDA=ON \
+      ..
+```
+
+> **Note**: CUDA support is declared as a CMake option but no GPU backend source code exists yet.
+
+## Build Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `CMAKE_BUILD_TYPE` | Release | Build type (Debug/Release/RelWithDebInfo) |
+| `USE_SSE42` | ON | Enable SSE4.2 SIMD operations |
+| `USE_AVX` | ON | Enable AVX SIMD operations |
+| `USE_AVX2` | ON | Enable AVX2 SIMD operations |
+| `USE_CUDA` | OFF | Enable NVIDIA CUDA GPU acceleration (planned) |
+| `USE_HIP` | OFF | Enable AMD ROCm GPU acceleration (planned) |
+| `USE_SYCL` | OFF | Enable Intel OneAPI GPU acceleration (planned) |
+
+## Build Output
+
+After a successful build, the following artifacts are produced:
+
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| `libdllm_tensor.a` | `build/src/cpp/tensor/` | Tensor library (static) |
+| `libdllm_engine.a` | `build/src/cpp/engine/` | Inference engine library (static) |
+| `libdllm_comm.a` | `build/src/cpp/comm/` | Communication library (static) |
+| `dllm_cpp.so` | `build/src/python/` | Python extension module |
+| `setup.py` | `build/src/python/` | Generated Python setup script |
 
 ### CMake Configuration Options
 

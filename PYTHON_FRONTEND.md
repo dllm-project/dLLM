@@ -4,6 +4,8 @@
 
 The Python frontend provides an OpenAI-compatible API server using FastAPI, serving as the interface between client applications and the C++ backend inference engine.
 
+**Status**: `✅ Implemented`
+
 ## Architecture
 
 ```
@@ -32,17 +34,19 @@ pip install fastapi uvicorn pydantic numpy pybind11 openai
 
 ```bash
 cd src/python
-python server.py --config ../config.yaml
+python server.py
 ```
 
 The server will start on `http://0.0.0.0:8000` with:
-- OpenAI-compatible endpoints
+- OpenAI-compatible endpoints (with `/api` prefix)
 - Auto-generated Swagger UI at `/docs`
 - ReDoc documentation at `/redoc`
 
 ## API Endpoints
 
-### POST /v1/chat/completions
+> **Note**: All endpoints use `/api` prefix (not `/v1`).
+
+### POST /api/chat/completions
 
 Chat completions endpoint compatible with OpenAI's API.
 
@@ -89,7 +93,7 @@ Chat completions endpoint compatible with OpenAI's API.
 }
 ```
 
-### POST /v1/completions
+### POST /api/completions
 
 Text completions endpoint.
 
@@ -104,7 +108,7 @@ Text completions endpoint.
 }
 ```
 
-### POST /v1/embeddings
+### POST /api/embeddings
 
 Generate embeddings for input text.
 
@@ -135,7 +139,7 @@ Generate embeddings for input text.
 }
 ```
 
-### GET /v1/models
+### GET /api/models
 
 List available models.
 
@@ -156,35 +160,12 @@ List available models.
 
 ## Server Configuration
 
-### YAML Configuration
-
-```yaml
-# server_config.yaml
-server:
-  host: "0.0.0.0"
-  port: 8000
-  workers: 4
-  cors_origins: ["*"]
-
-backend:
-  cpp_library_path: "./build/libdllm.so"
-  instruction_set: auto
-
-models:
-  llama-7b: "/models/llama-7b"
-  gpt2-small: "/models/gpt2-small"
-
-logging:
-  level: "INFO"
-```
-
 ### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | DLLM_HOST | 0.0.0.0 | Server host |
 | DLLM_PORT | 8000 | Server port |
-| DLLM_WORKERS | 4 | Number of workers |
 | DLLM_CPP_PATH | ./build/libdllm.so | C++ library path |
 
 ## pybind11 Integration

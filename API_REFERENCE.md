@@ -4,8 +4,8 @@
 
 dLLM provides OpenAI-compatible APIs through a Python frontend that interfaces with the C++ backend. The architecture consists of:
 
-- **Python Frontend**: FastAPI server with OpenAI-compatible endpoints
-- **C++ Backend**: High-performance inference engine with SIMD optimizations (AVX2/AVX512)
+- **Python Frontend**: FastAPI server with OpenAI-compatible endpoints (`✅ Implemented`)
+- **C++ Backend**: High-performance inference engine with SIMD optimizations (SSE4.2/AVX/AVX2) (`✅ Implemented`)
 
 ## OpenAI-Compatible REST API
 
@@ -14,16 +14,18 @@ All endpoints are compatible with OpenAI's API specification.
 ### Base URL
 
 ```
-http://localhost:8000/v1
+http://localhost:8000/api
 ```
 
-### POST /chat/completions
+> **Note**: The API uses `/api` prefix (not `/v1`). This is configured in `src/python/server.py` with `prefix="/api"`.
+
+### POST /api/chat/completions
 
 Chat completions endpoint with full OpenAI compatibility.
 
 **Request Headers:**
 ```bash
-curl -X POST http://localhost:8000/v1/chat/completions \
+curl -X POST http://localhost:8000/api/chat/completions \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer dummy-key" \
     -d '{
@@ -67,13 +69,13 @@ curl -X POST http://localhost:8000/v1/chat/completions \
 }
 ```
 
-### POST /completions
+### POST /api/completions
 
 Text completions endpoint.
 
 **Request:**
 ```bash
-curl -X POST http://localhost:8000/v1/completions \
+curl -X POST http://localhost:8000/api/completions \
     -H "Content-Type: application/json" \
     -d '{
         "model": "gpt2-small",
@@ -84,13 +86,13 @@ curl -X POST http://localhost:8000/v1/completions \
     }'
 ```
 
-### POST /embeddings
+### POST /api/embeddings
 
 Generate embeddings for input text.
 
 **Request:**
 ```bash
-curl -X POST http://localhost:8000/v1/embeddings \
+curl -X POST http://localhost:8000/api/embeddings \
     -H "Content-Type: application/json" \
     -d '{
         "model": "bert-base",

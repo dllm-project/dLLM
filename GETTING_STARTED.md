@@ -3,8 +3,8 @@
 ## Quick Start Guide
 
 dLLM uses a two-tier architecture:
-- **Python Frontend**: OpenAI-compatible API server (FastAPI)
-- **C++ Backend**: High-performance inference engine with SIMD optimizations
+- **Python Frontend**: OpenAI-compatible API server (FastAPI) (`✅ Implemented`)
+- **C++ Backend**: High-performance inference engine with SIMD optimizations (SSE4.2/AVX/AVX2) (`✅ Implemented`)
 
 ### Option 1: CPU Mode (Default)
 
@@ -19,7 +19,9 @@ pip install -r requirements.txt
 # Build C++ backend
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
-      -DUSE_AVX512=ON \
+      -DUSE_SSE42=ON \
+      -DUSE_AVX=ON \
+      -DUSE_AVX2=ON \
       ..
 make -j$(nproc)
 
@@ -28,20 +30,22 @@ cd ../src/python
 python server.py
 ```
 
-### Option 2: GPU Mode (NVIDIA/AMD/Intel)
+### Option 2: GPU Mode (🔲 Planned)
+
+> **Note**: GPU acceleration is declared as CMake options but no GPU backend source code exists yet.
 
 ```bash
 # Install GPU drivers and toolkit
 # NVIDIA: CUDA 11.8+, AMD: ROCm 5.3+, Intel: OneAPI 2023.1+
 
-# Build with GPU support
+# Build with GPU support (planned)
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
       -DUSE_CUDA=ON \      # or USE_HIP=ON, USE_SYCL=ON
       ..
 make -j$(nproc)
 
-# Start the API server with GPU acceleration
+# Start the API server with GPU acceleration (planned)
 cd ../src/python
 python server.py --use-gpu
 ```
@@ -54,28 +58,12 @@ The server will start on `http://0.0.0.0:8000` with:
 
 ### Step 1 (CPU): Test Your Installation
 
-Or if using GPU:
-### Step 2 (GPU): Verify GPU Detection
-
 ```bash
-# NVIDIA
-nvidia-smi
-
-# AMD ROCm
-rocm-smi
-
-# Intel OneAPI
-intel_gpu_top
-```
-
-### Step 3 (Both): Test Your Installation
-
-```bash
-# Test models endpoint
-curl http://localhost:8000/v1/models
+# Test models endpoint (note: /api prefix, not /v1)
+curl http://localhost:8000/api/models
 
 # Test chat completions
-curl -X POST http://localhost:8000/v1/chat/completions \
+curl -X POST http://localhost:8000/api/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
         "model": "llama-7b",
@@ -83,13 +71,13 @@ curl -X POST http://localhost:8000/v1/chat/completions \
     }'
 ```
 
-### Step 3: Using with OpenAI SDK
+### Step 2: Using with OpenAI SDK
 
 ```python
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://localhost:8000/v1",
+    base_url="http://localhost:8000/api",
     api_key="dummy"
 )
 

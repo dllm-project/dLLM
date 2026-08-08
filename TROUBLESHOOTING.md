@@ -57,11 +57,11 @@ cd build && make
 
 **Solutions**:
 ```python
-# Verify the base_url is correct
+# Verify the base_url is correct (note: /api prefix, not /v1)
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://localhost:8000/v1",  # Ensure /v1 is included
+    base_url="http://localhost:8000/api",  # Use /api prefix
     api_key="dummy"
 )
 
@@ -71,7 +71,7 @@ print(client.models.list())  # Should return list of models
 
 ### Connection Timeout in Distributed Mode
 
-**Problem**: Nodes cannot communicate.
+> **Note**: Distributed computing features are planned but not yet implemented. The `src/cpp/comm/` directory contains CMakeLists.txt references but no source files.
 
 **Solutions**:
 ```yaml
@@ -102,7 +102,7 @@ quantization:
 inference:
   max_batch_size: 8
   
-# Use tensor parallelism to split model across nodes
+# Use tensor parallelism to split model across nodes (planned)
 tensor_parallelism:
   enabled: true
 ```
@@ -117,12 +117,14 @@ tensor_parallelism:
 ```
 
 **Solutions**:
-1. Enable AVX512 instruction set
+1. Enable AVX2 instruction set (AVX-512 is not supported)
 2. Increase thread count
 3. Use larger batch size (if memory permits)
 4. Reduce model precision
 
 ### High Network Latency
+
+> **Note**: Distributed computing features are planned but not yet implemented.
 
 **Diagnosis**:
 ```bash
@@ -180,3 +182,111 @@ export DLLM_LOG_LEVEL=trace
 python -m cProfile -o stats.out server.py
 snakeviz stats.out
 ```
+
+## SIMD Instruction Set Issues
+
+### Checking Supported Instruction Sets
+
+```bash
+# Check CPU instruction set support
+grep -o -E 'avx512|avx2|avx|sse4_2' /proc/cpuinfo | sort -u
+
+# Expected output for modern CPUs:
+# avx
+# avx2
+# sse4_2
+```
+
+### Build with Correct Instruction Set
+
+```bash
+# SSE4.2 only (baseline)
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DUSE_SSE42=ON \
+      -DUSE_AVX=OFF \
+      -DUSE_AVX2=OFF \
+      ..
+
+# AVX + AVX2 (recommended)
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DUSE_SSE42=ON \
+      -DUSE_AVX=ON \
+      -DUSE_AVX2=ON \
+      ..
+```
+
+> **Note**: AVX-512 is intentionally not supported. This project targets SSE4.2 → AVX2.
+
+## GPU Issues
+
+> **Note**: GPU acceleration is declared as CMake options but no GPU backend source code exists yet.
+
+### CUDA Not Detected
+
+**Problem**: CUDA GPU not detected.
+
+**Solutions**:
+```bash
+# Check NVIDIA driver
+nvidia-smi
+
+# Check CUDA toolkit
+nvcc --version
+
+# Check CUDA libraries
+ldconfig -p | grep cuda
+
+# Reinstall NVIDIA driver if needed
+sudo apt-get install --reinstall nvidia-driver-535
+```
+
+### ROCm Not Detected
+
+**Problem**: ROCm GPU not detected.
+
+**Solutions**:
+```bash
+# Check ROCm installation
+rocm-smi
+
+# Check ROCm libraries
+ldconfig -p | grep rocm
+
+# Verify ROCm version
+rocminfo | grep "ROCm Version"
+```
+
+### SYCL Not Detected
+
+**Problem**: SYCL GPU not detected.
+
+**Solutions**:
+```bash
+# Check OneAPI installation
+intel_gpu_top
+
+# Check SYCL libraries
+ldconfig -p | grep sycl
+
+# Verify OneAPI version
+clinfo | grep "Platform Name"
+```
+
+## Getting Help
+
+If you encounter issues not covered in this guide:
+
+1. **Check the logs**: Look for error messages in `logs/` directory
+2. **Search GitHub Issues**: Check if others have reported similar issues
+3. **Create a New Issue**: Provide detailed information about your problem
+4. **Join the Community**: Ask for help in our community channels
+
+### Information to Include
+
+When reporting issues, please include:
+
+- **System Information**: OS, CPU, GPU, Python version
+- **Build Configuration**: CMake flags used
+- **Error Messages**: Full error output
+- **Steps to Reproduce**: How to reproduce the issue
+- **Expected vs Actual Behavior**: What you expected vs what happened
