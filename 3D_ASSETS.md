@@ -1,16 +1,18 @@
-# 3D Asset Inference
+# 3D Asset Inference (🔲 Planned)
+
+> **Status**: No 3D processing code exists in the codebase. This is a planned feature for a future release.
 
 ## Overview
 
-dLLM provides high-performance 3D asset inference capabilities for classification, reconstruction, generation, texturing, and scene understanding. The 3D processing pipeline leverages distributed CPU SIMD compute and multi-vendor GPU acceleration to handle complex 3D workloads efficiently.
+dLLM plans to provide high-performance 3D asset inference capabilities for classification, reconstruction, generation, texturing, and scene understanding. The 3D processing pipeline would leverage distributed CPU SIMD compute and multi-vendor GPU acceleration to handle complex 3D workloads efficiently.
 
 ## Supported Tasks
 
-### 3D Classification
+### 3D Classification (🔲 Planned)
+
+> **Status**: No 3D classification code exists. This is a design-only feature.
 
 Shape and category prediction for 3D meshes and point clouds.
-
-**Performance**: 15K+ meshes/s (AVX-512), 50K+ meshes/s (CUDA)
 
 | Model | Parameters | ShapeNet Accuracy | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|-------------------|---------------------|---------------------|
@@ -21,11 +23,11 @@ Shape and category prediction for 3D meshes and point clouds.
 | MeshCNN | 8M | 84.2% | 18 μs | 4 μs |
 | PointConv | 15M | 86.1% | 25 μs | 5 μs |
 
-### 3D Reconstruction
+### 3D Reconstruction (🔲 Planned)
+
+> **Status**: No 3D reconstruction code exists. This is a design-only feature.
 
 Point cloud to mesh generation and implicit surface reconstruction.
-
-**Performance**: 5K+ meshes/s (AVX-512), 18K+ meshes/s (CUDA)
 
 | Model | Parameters | Chamfer Distance | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|-----------------|---------------------|---------------------|
@@ -35,11 +37,11 @@ Point cloud to mesh generation and implicit surface reconstruction.
 | Instant-NGP | 3M | 0.011 | 95ms | 18ms |
 | Zip-NeRF | 4M | 0.009 | 110ms | 20ms |
 
-### 3D Generation
+### 3D Generation (🔲 Planned)
+
+> **Status**: No 3D generation code exists. This is a design-only feature.
 
 Text-to-3D mesh creation and shape synthesis.
-
-**Performance**: 2K+ meshes/s (AVX-512), 8K+ meshes/s (CUDA)
 
 | Model | Parameters | FID Score | Generation Time (CPU) | Generation Time (GPU) |
 |-------|-----------|-----------|---------------------|---------------------|
@@ -49,11 +51,11 @@ Text-to-3D mesh creation and shape synthesis.
 | 3D-FEP | 15M | 14.5 | 12s | 2.2s |
 | Text2Mesh | 200M | 13.8 | 15s | 2.8s |
 
-### Texturing
+### Texturing (🔲 Planned)
+
+> **Status**: No texturing code exists. This is a design-only feature.
 
 Material and texture synthesis for 3D meshes.
-
-**Performance**: 3K+ meshes/s (AVX-512), 12K+ meshes/s (CUDA)
 
 | Model | Parameters | PSNR | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|------|---------------------|---------------------|
@@ -62,11 +64,11 @@ Material and texture synthesis for 3D meshes.
 | UV-Gen | 12M | 27.8 dB | 62ms | 11ms |
 | MaterialNeRF | 8M | 29.1 dB | 55ms | 10ms |
 
-### Scene Understanding
+### Scene Understanding (🔲 Planned)
+
+> **Status**: No scene understanding code exists. This is a design-only feature.
 
 Spatial reasoning and object relationship analysis in 3D scenes.
-
-**Performance**: 8K+ scenes/s (AVX-512), 30K+ scenes/s (CUDA)
 
 | Model | Parameters | mAP@0.5 | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|---------|---------------------|---------------------|
@@ -76,11 +78,11 @@ Spatial reasoning and object relationship analysis in 3D scenes.
 | CenterPoint | 30M | 69.2 | 65ms | 14ms |
 | BEVFormer | 40M | 71.5 | 78ms | 16ms |
 
-### 3D Detection
+### 3D Detection (🔲 Planned)
+
+> **Status**: No 3D detection code exists. This is a design-only feature.
 
 Object localization in 3D space with bounding boxes and orientation.
-
-**Performance**: 10K+ objects/s (AVX-512), 35K+ objects/s (CUDA)
 
 | Model | Parameters | 3D mAP | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|--------|---------------------|---------------------|
@@ -90,11 +92,11 @@ Object localization in 3D space with bounding boxes and orientation.
 | TransFusion | 35M | 71.8 | 72ms | 15ms |
 | BEVFormer | 40M | 73.1 | 78ms | 16ms |
 
-### Mesh Simplification
+### Mesh Simplification (🔲 Planned)
+
+> **Status**: No mesh simplification code exists. This is a design-only feature.
 
 LOD (Level of Detail) generation and mesh decimation.
-
-**Performance**: 20K+ meshes/s (AVX-512), 60K+ meshes/s (CUDA)
 
 | Method | Reduction Ratio | Quality Loss | Processing Time (CPU) | Processing Time (GPU) |
 |--------|----------------|--------------|---------------------|---------------------|
@@ -103,11 +105,11 @@ LOD (Level of Detail) generation and mesh decimation.
 | Vertex Clustering | 80% | 2.5% | 8ms | 1.5ms |
 | Simplicial Complex | 75% | 1.5% | 18ms | 3.5ms |
 
-### Point Cloud Processing
+### Point Cloud Processing (🔲 Planned)
+
+> **Status**: No point cloud processing code exists. This is a design-only feature.
 
 Classification, segmentation, and completion for point cloud data.
-
-**Performance**: 12K+ points/s (AVX-512), 45K+ points/s (CUDA)
 
 | Task | Model | Parameters | Accuracy | Inference Time (CPU) | Inference Time (GPU) |
 |------|-------|-----------|----------|---------------------|---------------------|
@@ -117,22 +119,22 @@ Classification, segmentation, and completion for point cloud data.
 | Denoising | DGCNN | 8M | 0.88 | 28ms | 6ms |
 | Upsampling | TopNet | 5M | 0.93 | 22ms | 5ms |
 
-## Supported 3D Formats
+## Planned 3D Formats
 
 | Format | Extension | Description | Status |
 |--------|-----------|-------------|--------|
-| **GLTF** | `.gltf` | glTF JSON — scene description with references | ✓ Supported |
-| **GLB** | `.glb` | glTF Binary — self-contained 3D files | ✓ Supported |
-| **OBJ** | `.obj` | Wavefront OBJ — geometry + materials | ✓ Supported |
-| **FBX** | `.fbx` | Autodesk FBX — animation + rigging | ✓ Supported |
-| **USD** | `.usd` | Pixar USD — scene description | ✓ Supported |
-| **USDZ** | `.usdz` | Pixar USDZ — packaged USD | ✓ Supported |
-| **PLY** | `.ply` | Stanford PLY — point clouds & meshes | ✓ Supported |
-| **STL** | `.stl` | Stereolithography — CAD meshes | ✓ Supported |
-| **3MF** | `.3mf` | 3D Manufacturing Format | ✓ Supported |
-| **COLLADA** | `.dae` | Open standard for 3D interchange | ✓ Supported |
+| **GLTF** | `.gltf` | glTF JSON — scene description with references | 🔲 Planned |
+| **GLB** | `.glb` | glTF Binary — self-contained 3D files | 🔲 Planned |
+| **OBJ** | `.obj` | Wavefront OBJ — geometry + materials | 🔲 Planned |
+| **FBX** | `.fbx` | Autodesk FBX — animation + rigging | 🔲 Planned |
+| **USD** | `.usd` | Pixar USD — scene description | 🔲 Planned |
+| **USDZ** | `.usdz` | Pixar USDZ — packaged USD | 🔲 Planned |
+| **PLY** | `.ply` | Stanford PLY — point clouds & meshes | 🔲 Planned |
+| **STL** | `.stl` | Stereolithography — CAD meshes | 🔲 Planned |
+| **3MF** | `.3mf` | 3D Manufacturing Format | 🔲 Planned |
+| **COLLADA** | `.dae` | Open standard for 3D interchange | 🔲 Planned |
 
-## 3D Processing Pipeline
+## 3D Processing Pipeline (Design)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -169,9 +171,9 @@ Classification, segmentation, and completion for point cloud data.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 3D Parsing & Normalization
+### 3D Parsing & Normalization (Design)
 
-All 3D format parsing is SIMD-accelerated for maximum throughput:
+All 3D format parsing would be SIMD-accelerated for maximum throughput:
 
 | Operation | SSE4.2 | AVX | AVX2 | AVX-512 |
 |-----------|--------|-----|------|---------|
@@ -181,7 +183,7 @@ All 3D format parsing is SIMD-accelerated for maximum throughput:
 | Bounding box calc | 1.0x | 2.0x | 2.1x | 4.2x |
 | Mesh simplification | 1.0x | 2.0x | 2.2x | 4.4x |
 
-### Supported 3D Encoders
+### Planned 3D Encoders
 
 | Encoder | Type | Parameters | Input | Output | Use Case |
 |---------|------|-----------|-------|--------|----------|
@@ -194,9 +196,9 @@ All 3D format parsing is SIMD-accelerated for maximum throughput:
 | KPConv | Kernel Point | 10M | Point cloud | Feature map | Large-scale scenes |
 | RandLA-Net | Random Sampling | 5M | Large point clouds | Feature map | Outdoor scenes |
 
-## Python API
+## Python API (Design)
 
-### 3D Classification
+### 3D Classification (Design)
 
 ```python
 from backend_connector import BackendConnector
@@ -227,7 +229,7 @@ print(result)
 # }
 ```
 
-### 3D Reconstruction
+### 3D Reconstruction (Design)
 
 ```python
 # Reconstruct mesh from point cloud
@@ -240,7 +242,7 @@ mesh = connector.predict_3d(
 mesh.save("reconstructed.obj")
 ```
 
-### Text-to-3D Generation
+### Text-to-3D Generation (Design)
 
 ```python
 # Generate 3D mesh from text prompt
@@ -254,7 +256,7 @@ mesh = connector.predict_3d(
 mesh.save("lamp.glb")
 ```
 
-### 3D Scene Understanding
+### 3D Scene Understanding (Design)
 
 ```python
 # Analyze 3D scene
@@ -267,7 +269,7 @@ for obj in scene.objects:
     print(f"  {obj.class_name}: position={obj.position}, size={obj.size}")
 ```
 
-### 3D Detection
+### 3D Detection (Design)
 
 ```python
 # Detect objects in 3D space
@@ -282,7 +284,7 @@ for det in detections:
           f"size={det['size']}, orientation={det['orientation']}")
 ```
 
-### Mesh Simplification (LOD Generation)
+### Mesh Simplification (LOD Generation) (Design)
 
 ```python
 # Generate multiple LOD levels
@@ -295,7 +297,7 @@ for lod in lod_meshes:
     lod.save(f"character_lod{lod.level}.glb")
 ```
 
-### Point Cloud Segmentation
+### Point Cloud Segmentation (Design)
 
 ```python
 # Segment point cloud into classes
@@ -308,7 +310,7 @@ for seg in segments:
     print(f"  {seg.class_name}: {len(seg.points)} points")
 ```
 
-### Point Cloud Completion
+### Point Cloud Completion (Design)
 
 ```python
 # Complete incomplete point cloud
@@ -320,7 +322,7 @@ completed = connector.predict_3d(
 completed.save("complete.ply")
 ```
 
-### Texturing
+### Texturing (Design)
 
 ```python
 # Apply texture to 3D mesh
@@ -333,9 +335,9 @@ textured = connector.predict_3d(
 textured.save("textured_mesh.glb")
 ```
 
-## C++ API
+## C++ API (Design)
 
-### 3D Classification
+### 3D Classification (Design)
 
 ```cpp
 #include "vision/3d_processor.h"
@@ -362,7 +364,7 @@ for (const auto& pred : result.predictions) {
 }
 ```
 
-### 3D Reconstruction
+### 3D Reconstruction (Design)
 
 ```cpp
 // Reconstruct mesh from point cloud
@@ -380,7 +382,7 @@ auto reconstructed = recon_pipeline.reconstruct(point_cloud,
 reconstructed.save("output.obj");
 ```
 
-### 3D Generation
+### 3D Generation (Design)
 
 ```cpp
 // Text-to-3D generation
@@ -403,7 +405,7 @@ auto generated = gen_pipeline.generate(
 generated.save("lamp.glb");
 ```
 
-### Mesh Simplification
+### Mesh Simplification (Design)
 
 ```cpp
 // Generate LOD levels
@@ -424,9 +426,9 @@ for (const auto& lod : lod_meshes) {
 }
 ```
 
-## Configuration
+## Configuration (Design)
 
-### YAML Configuration
+### YAML Configuration (Design)
 
 ```yaml
 three_d:
@@ -505,11 +507,11 @@ three_d:
       min_segment_size: 100
 ```
 
-## Performance Optimization
+## Performance Optimization (Design)
 
-### SIMD Acceleration
+### SIMD Acceleration (Design)
 
-All 3D processing operations leverage SIMD instructions:
+All 3D processing operations would leverage SIMD instructions:
 
 | Operation | SSE4.2 | AVX | AVX2 | AVX-512 |
 |-----------|--------|-----|------|---------|
@@ -522,9 +524,9 @@ All 3D processing operations leverage SIMD instructions:
 | Voxelization | 1.0x | 2.0x | 2.1x | 4.3x |
 | KD-tree build | 1.0x | 2.0x | 2.2x | 4.5x |
 
-### Distributed Processing
+### Distributed Processing (Design)
 
-For large 3D scenes, dLLM distributes computation across cluster nodes:
+For large 3D scenes, dLLM would distribute computation across cluster nodes:
 
 ```yaml
 distributed:
@@ -535,16 +537,16 @@ distributed:
   compression: lz4
 ```
 
-### Memory Optimization
+### Memory Optimization (Design)
 
 - **Memory pooling**: Reuse tensor buffers for repeated operations
 - **Streaming processing**: Process large meshes in chunks
 - **Quantized weights**: INT8/INT4 for reduced memory footprint
 - **Lazy loading**: Load only needed geometry data on demand
 
-## Troubleshooting
+## Troubleshooting (Design)
 
-### Common Issues
+### Common Issues (Design)
 
 **Issue**: Out of memory for large meshes
 

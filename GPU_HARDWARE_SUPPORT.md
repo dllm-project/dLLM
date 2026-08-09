@@ -1,13 +1,15 @@
-# GPU Hardware Support in dLLM
+# GPU Hardware Support in dLLM (🔲 Planned)
+
+> **Status**: No GPU backend code exists in the codebase. This is a planned feature for a future release.
 
 ## Overview
 
-dLLM provides multi-GPU vendor support through multiple acceleration backends:
+dLLM plans to provide multi-GPU vendor support through multiple acceleration backends:
 - **NVIDIA GPUs** - CUDA (primary), OpenCL (fallback)
 - **AMD/ATI GPUs** - ROCm/HIP (primary), OpenCL/Vulkan (fallback)
 - **Intel GPUs** - OneAPI/SYCL (primary), OpenCL (fallback)
 
-The system automatically detects available GPU hardware and selects the optimal backend.
+The system would automatically detect available GPU hardware and select the optimal backend.
 
 ## Architecture
 
@@ -157,17 +159,17 @@ sudo apt install -y intel-oneapi-dev-util intel-oneapi-compiler-dpcpp-cpp intel-
 
 **Note:** OneAPI/SYCL is preferred when available; OpenCL provides fallback.
 
-## GPU Hardware Selection
+## GPU Hardware Selection (Design)
 
-### Automatic Detection
+### Automatic Detection (Design)
 
-The system automatically detects and prioritizes GPU backends in this order:
+The system would automatically detect and prioritize GPU backends in this order:
 1. **NVIDIA CUDA** (highest priority)
 2. **AMD ROCm/HIP**
 3. **Intel OneAPI/SYCL**
 4. **OpenCL** (universal fallback)
 
-### Manual Configuration
+### Manual Configuration (Design)
 
 ```yaml
 # config.yaml
@@ -189,9 +191,9 @@ gpu:
     mode: multi_gpu  # single_gpu, multi_gpu, distributed_nodes
 ```
 
-## Performance Comparison
+## Performance Comparison (Design)
 
-### GPU vs CPU (dLLM)
+### GPU vs CPU (dLLM) (Design)
 
 | Aspect | GPU | dLLM (CPU) |
 |--------|-----|------------|
@@ -201,7 +203,7 @@ gpu:
 | Distributed cost | High (single node) | Moderate (scale-out) |
 | Flexibility | Model-specific | General-purpose |
 
-### GPU Throughput Comparison
+### GPU Throughput Comparison (Design)
 
 | GPU Model | FP16 TFLOPS | Tensor Cores | dLLM Equivalent (4-node CPU) |
 |-----------|-------------|--------------|------------------------------|
@@ -211,9 +213,9 @@ gpu:
 | MI250X | 107 | ✗ | ~22 nodes |
 | Arc A770 | 13.2 | ✗ | ~3 nodes |
 
-## Installation by Platform
+## Installation by Platform (Design)
 
-### Ubuntu/Debian - NVIDIA CUDA
+### Ubuntu/Debian - NVIDIA CUDA (Design)
 ```bash
 # Install CUDA 11.8
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
@@ -230,7 +232,7 @@ export PATH=$CUDA_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 ```
 
-### Ubuntu/Debian - AMD ROCm
+### Ubuntu/Debian - AMD ROCm (Design)
 ```bash
 # Add ROCm repository
 wget https://repo.radeon.com/amdgpu-install/latest/ubuntu/deb/amdgpu-install_7.0.70000-1_all.deb
@@ -244,7 +246,7 @@ sudo apt install -y rocm-hip-sdk rocm-dev
 sudo usermod -a -G video $USER
 ```
 
-### Ubuntu/Debian - Intel OneAPI
+### Ubuntu/Debian - Intel OneAPI (Design)
 ```bash
 # Install OneAPI Base Toolkit
 wget https://apt.repos.intel.com/intel-gpu-setup.pub
@@ -255,7 +257,7 @@ sudo apt update
 sudo apt install -y intel-oneapi-dev-util intel-oneapi-compiler-dpcpp-cpp
 ```
 
-### Windows - NVIDIA CUDA
+### Windows - NVIDIA CUDA (Design)
 1. Download CUDA Toolkit 11.8 from NVIDIA website
 2. Install with Developer Drivers
 3. Set environment variables:
@@ -264,13 +266,13 @@ sudo apt install -y intel-oneapi-dev-util intel-oneapi-compiler-dpcpp-cpp
    PATH=%CUDA_PATH%\bin;%PATH%
    ```
 
-### macOS - Apple Silicon
-- **Note:** dLLM uses Metal for Apple Silicon GPUs via the ROCm backend compatibility layer.
+### macOS - Apple Silicon (Design)
+- **Note:** dLLM would use Metal for Apple Silicon GPUs via the ROCm backend compatibility layer.
 - Requires macOS 12+ and Xcode 14+
 
-## GPU Configuration Examples
+## GPU Configuration Examples (Design)
 
-### Single NVIDIA GPU
+### Single NVIDIA GPU (Design)
 ```yaml
 gpu:
   enabled: true
@@ -281,7 +283,7 @@ backend:
   gpu_backend: cuda
 ```
 
-### Multi-NVIDIA GPU (Data Parallel)
+### Multi-NVIDIA GPU (Data Parallel) (Design)
 ```yaml
 gpu:
   enabled: true
@@ -296,7 +298,7 @@ distribution:
       rank: 0
 ```
 
-### AMD Multi-GPU Setup
+### AMD Multi-GPU Setup (Design)
 ```yaml
 gpu:
   enabled: true
@@ -311,7 +313,7 @@ distribution:
       devices: [0, 1]
 ```
 
-### Intel GPU Configuration
+### Intel GPU Configuration (Design)
 ```yaml
 gpu:
   enabled: true
@@ -322,9 +324,9 @@ backend:
   gpu_backend: sycl
 ```
 
-## Verification
+## Verification (Design)
 
-### Check GPU Detection
+### Check GPU Detection (Design)
 
 ```bash
 # NVIDIA CUDA
@@ -340,13 +342,13 @@ intel_gpu_top
 clinfo
 ```
 
-### Test GPU Backend in dLLM
+### Test GPU Backend in dLLM (Design)
 
 ```python
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://localhost:8000/v1",
+    base_url="http://localhost:8000/api/v1",
     api_key="dummy"
 )
 
@@ -360,9 +362,9 @@ response = client.chat.completions.create(
 )
 ```
 
-## Troubleshooting
+## Troubleshooting (Design)
 
-### CUDA Issues
+### CUDA Issues (Design)
 
 **Error: "CUDA driver version is insufficient"**
 ```bash
@@ -377,7 +379,7 @@ gpu:
   batch_size: auto       # Let system determine optimal batch size
 ```
 
-### ROCm Issues
+### ROCm Issues (Design)
 
 **Error: "ROCm not found"**
 ```bash
@@ -388,7 +390,7 @@ gpu:
 /opt/rocm/bin/rocm-smi
 ```
 
-### OneAPI Issues
+### OneAPI Issues (Design)
 
 **Error: "SYCL backend unavailable"**
 ```bash
@@ -399,7 +401,7 @@ sudo apt install intel-opencl-icd
 intel_gpu_top
 ```
 
-## Best Practices
+## Best Practices (Design)
 
 1. **Choose the right GPU for your workload:**
    - Large models (70B+): High VRAM GPUs (A100, MI250X)

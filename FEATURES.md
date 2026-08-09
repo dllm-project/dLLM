@@ -769,20 +769,24 @@ for (const auto& pred : result.predictions) {
 
 | Format | Extension | Description | Status |
 |--------|-----------|-------------|--------|
-| **GLTF/GLB** | `.gltf`, `.glb` | glTF Binary — industry standard for 3D | ✓ Supported |
-| **OBJ** | `.obj` | Wavefront OBJ — geometry + materials | ✓ Supported |
-| **FBX** | `.fbx` | Autodesk FBX — animation + rigging | ✓ Supported |
-| **USD/USDZ** | `.usd`, `.usdz` | Pixar USD — scene description | ✓ Supported |
-| **PLY** | `.ply` | Stanford PLY — point clouds & meshes | ✓ Supported |
-| **STL** | `.stl` | Stereolithography — CAD meshes | ✓ Supported |
-| **3MF** | `.3mf` | 3D Manufacturing Format | ✓ Supported |
-| **COLLADA** | `.dae` | Open standard for 3D interchange | ✓ Supported |
+| **GLTF/GLB** | `.gltf`, `.glb` | glTF Binary — industry standard for 3D | 🔲 Planned |
+| **OBJ** | `.obj` | Wavefront OBJ — geometry + materials | 🔲 Planned |
+| **FBX** | `.fbx` | Autodesk FBX — animation + rigging | 🔲 Planned |
+| **USD/USDZ** | `.usd`, `.usdz` | Pixar USD — scene description | 🔲 Planned |
+| **PLY** | `.ply` | Stanford PLY — point clouds & meshes | 🔲 Planned |
+| **STL** | `.stl` | Stereolithography — CAD meshes | 🔲 Planned |
+| **3MF** | `.3mf` | 3D Manufacturing Format | 🔲 Planned |
+| **COLLADA** | `.dae` | Open standard for 3D interchange | 🔲 Planned |
 
-#### 3D Processing Pipeline
+#### 3D Processing Pipeline (🔲 Planned)
+
+> **Status**: No 3D processing pipeline code exists. No `vision/3d_parser.h` or `vision/3d_encoder.h` files exist.
+
+#### Planned 3D Asset Processing Pipeline Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  3D Asset Processing Pipeline                │
+│                  3D Asset Processing Pipeline (Planned)      │
 ├─────────────────────────────────────────────────────────────┤
 │  Input (GLB/OBJ/FBX/USDZ)                                   │
 │       │                                                     │
@@ -809,20 +813,20 @@ for (const auto& pred : result.predictions) {
 └─────────────────────────────────────────────────────────────┘
 ```
 
-#### 3D Model Architectures
+#### Planned 3D Model Architectures
 
-| Architecture | Type | Parameters | Use Case |
-|-------------|------|-----------|----------|
-| **PointNet++** | Point cloud | 3.5M | Classification & segmentation |
-| **SparseConvNet** | Sparse conv | 12M | 3D scene understanding |
-| **MeshCNN** | Mesh conv | 8M | Mesh classification |
-| **NeRF** | Neural radiance | 5M | 3D scene representation |
-| **DreamFusion** | Text-to-3D | 600M | Text-guided 3D generation |
-| **3D-FEP** | Feature extraction | 15M | 3D feature matching |
-| **PointTransformer** | Transformer | 22M | Point cloud analysis |
-| **ConvONet** | Implicit surface | 10M | 3D reconstruction |
+| Architecture | Type | Parameters | Use Case | Status |
+|-------------|------|-----------|----------|--------|
+| **PointNet++** | Point cloud | 3.5M | Classification & segmentation | 🔲 Planned |
+| **SparseConvNet** | Sparse conv | 12M | 3D scene understanding | 🔲 Planned |
+| **MeshCNN** | Mesh conv | 8M | Mesh classification | 🔲 Planned |
+| **NeRF** | Neural radiance | 5M | 3D scene representation | 🔲 Planned |
+| **DreamFusion** | Text-to-3D | 600M | Text-guided 3D generation | 🔲 Planned |
+| **3D-FEP** | Feature extraction | 15M | 3D feature matching | 🔲 Planned |
+| **PointTransformer** | Transformer | 22M | Point cloud analysis | 🔲 Planned |
+| **ConvONet** | Implicit surface | 10M | 3D reconstruction | 🔲 Planned |
 
-#### 3D Asset API
+#### Planned 3D Asset API (Design Only)
 
 ```python
 from backend_connector import BackendConnector
@@ -1247,61 +1251,63 @@ multimodal:
 
 ---
 
-## 🎵 Music Production & Audio Inference
+## 🎵 Music Production & Audio Inference (🔲 Planned)
 
-dLLM extends its multimodal capabilities into the **audio and music production** domain, delivering professional-grade audio AI inference across the full creative pipeline — from composition and synthesis to mixing, mastering, and spatial audio rendering — all accelerated by distributed CPU SIMD compute and GPU offloading.
+> **Status**: No audio/music inference code exists in the codebase. No `audio/` source directories exist. All audio features are design documents only.
 
-### Supported Audio Modalities
+### Planned Audio Modalities
 
 | Modality | Input Types | Supported Tasks | Status |
 |----------|-------------|-----------------|--------|
-| **Music Generation** | Text prompts, MIDI, audio conditioning | Text-to-music, melody continuation, arrangement, variation | ✓ Supported |
-| **Audio Synthesis** | Parameter controls, neural parameters | Waveform generation, additive/subtractive synthesis, granular | ✓ Supported |
-| **Source Separation** | Mixed audio (stems) | Vocal/instrument separation, drum/bass/guitar/vocal isolation | ✓ Supported |
-| **Music Transcription** | Audio files | MIDI transcription, chord detection, tempo estimation, key detection | ✓ Supported |
-| **Audio Enhancement** | Degraded audio | Noise reduction, de-reverb, de-click, de-crackle, upmixing | ✓ Supported |
-| **Spatial Audio** | Stereo / mono / multichannel | Binaural rendering, ambisonics encoding/decoding, object-based audio | ✓ Supported |
-| **Voice & Speech** | Speech audio | TTS, voice cloning, emotion transfer, speech enhancement | ✓ Supported |
-| **Audio Analysis** | Any audio format | Genre classification, mood detection, loudness analysis, stem analysis | ✓ Supported |
+| **Music Generation** | Text prompts, MIDI, audio conditioning | Text-to-music, melody continuation, arrangement, variation | 🔲 Planned |
+| **Audio Synthesis** | Parameter controls, neural parameters | Waveform generation, additive/subtractive synthesis, granular | 🔲 Planned |
+| **Source Separation** | Mixed audio (stems) | Vocal/instrument separation, drum/bass/guitar/vocal isolation | 🔲 Planned |
+| **Music Transcription** | Audio files | MIDI transcription, chord detection, tempo estimation, key detection | 🔲 Planned |
+| **Audio Enhancement** | Degraded audio | Noise reduction, de-reverb, de-click, de-crackle, upmixing | 🔲 Planned |
+| **Spatial Audio** | Stereo / mono / multichannel | Binaural rendering, ambisonics encoding/decoding, object-based audio | 🔲 Planned |
+| **Voice & Speech** | Speech audio | TTS, voice cloning, emotion transfer, speech enhancement | 🔲 Planned |
+| **Audio Analysis** | Any audio format | Genre classification, mood detection, loudness analysis, stem analysis | 🔲 Planned |
 
-### Supported Audio Formats
+### Planned Audio Formats
 
 | Format | Extension | Description | Status |
 |--------|-----------|-------------|--------|
-| **WAV** | `.wav` | Uncompressed PCM — industry standard | ✓ Supported |
-| **FLAC** | `.flac` | Lossless compression — archiving & distribution | ✓ Supported |
-| **MP3** | `.mp3` | Lossy compression — streaming & distribution | ✓ Supported |
-| **AAC** | `.aac` | Advanced Audio Coding — streaming & mobile | ✓ Supported |
-| **OGG Vorbis** | `.ogg` | Open-source lossy compression | ✓ Supported |
-| **AIFF** | `.aiff` | Apple Audio Interchange File Format | ✓ Supported |
-| **CAF** | `.caf` | Apple Core Audio Format | ✓ Supported |
-| **WAV64** | `.wav64` | 64-bit WAV for large files | ✓ Supported |
-| **BWF** | `.bwf` | Broadcast Wave Format — professional audio | ✓ Supported |
-| **MIDI** | `.mid`, `.midi` | Musical Instrument Digital Interface | ✓ Supported |
-| **MID** | `.mid` | Standard MIDI File (Type 0/1/2) | ✓ Supported |
-| **Audio MIDI** | `.aif`, `.aifc` | Audio Interchange File (compressed variants) | ✓ Supported |
-| **Opus** | `.opus` | Low-latency streaming codec | ✓ Supported |
-| **AMR** | `.amr` | Adaptive Multi-Rate — voice telephony | ✓ Supported |
-| **DSD** | `.dsf`, `.dff` | Direct Stream Digital — hi-res audio | ✓ Supported |
+| **WAV** | `.wav` | Uncompressed PCM — industry standard | 🔲 Planned |
+| **FLAC** | `.flac` | Lossless compression — archiving & distribution | 🔲 Planned |
+| **MP3** | `.mp3` | Lossy compression — streaming & distribution | 🔲 Planned |
+| **AAC** | `.aac` | Advanced Audio Coding — streaming & mobile | 🔲 Planned |
+| **OGG Vorbis** | `.ogg` | Open-source lossy compression | 🔲 Planned |
+| **AIFF** | `.aiff` | Apple Audio Interchange File Format | 🔲 Planned |
+| **CAF** | `.caf` | Apple Core Audio Format | 🔲 Planned |
+| **WAV64** | `.wav64` | 64-bit WAV for large files | 🔲 Planned |
+| **BWF** | `.bwf` | Broadcast Wave Format — professional audio | 🔲 Planned |
+| **MIDI** | `.mid`, `.midi` | Musical Instrument Digital Interface | 🔲 Planned |
+| **MID** | `.mid` | Standard MIDI File (Type 0/1/2) | 🔲 Planned |
+| **Audio MIDI** | `.aif`, `.aifc` | Audio Interchange File (compressed variants) | 🔲 Planned |
+| **Opus** | `.opus` | Low-latency streaming codec | 🔲 Planned |
+| **AMR** | `.amr` | Adaptive Multi-Rate — voice telephony | 🔲 Planned |
+| **DSD** | `.dsf`, `.dff` | Direct Stream Digital — hi-res audio | 🔲 Planned |
 
-### Music Generation
+### Music Generation (🔲 Planned)
 
-#### Supported Music Generation Tasks
+> **Status**: No music generation code exists. No `audio/music_generator.h` or `audio/audio_processor.h` files exist.
 
-| Task | Description | Performance |
-|------|-------------|-------------|
-| **Text-to-Music** | Generate music from natural language prompts | 45+ seconds of audio/s (16kHz) |
-| **Melody Continuation** | Extend existing melodies or motifs | 120+ bars/s |
-| **Accompaniment Generation** | Generate backing tracks from melody | 80+ bars/s |
-| **Arrangement** | Full orchestration from sketch or prompt | 30+ bars/s |
-| **Style Transfer** | Re-render music in a different genre/style | 60+ bars/s |
-| **Variation Generation** | Create variations on a theme | 90+ bars/s |
-| **Drum Pattern Generation** | Rhythmic pattern synthesis | 200+ patterns/s |
-| **Bass Line Generation** | Harmonic bass line synthesis | 150+ bars/s |
-| **Harmony Generation** | Chord progression synthesis | 180+ progressions/s |
-| **Counterpoint Generation** | Polyphonic voice leading | 100+ voices/s |
+#### Planned Music Generation Tasks
 
-#### Music Generation Model Architectures
+| Task | Description | Status |
+|------|-------------|--------|
+| **Text-to-Music** | Generate music from natural language prompts | 🔲 Planned |
+| **Melody Continuation** | Extend existing melodies or motifs | 🔲 Planned |
+| **Accompaniment Generation** | Generate backing tracks from melody | 🔲 Planned |
+| **Arrangement** | Full orchestration from sketch or prompt | 🔲 Planned |
+| **Style Transfer** | Re-render music in a different genre/style | 🔲 Planned |
+| **Variation Generation** | Create variations on a theme | 🔲 Planned |
+| **Drum Pattern Generation** | Rhythmic pattern synthesis | 🔲 Planned |
+| **Bass Line Generation** | Harmonic bass line synthesis | 🔲 Planned |
+| **Harmony Generation** | Chord progression synthesis | 🔲 Planned |
+| **Counterpoint Generation** | Polyphonic voice leading | 🔲 Planned |
+
+#### Planned Music Generation Model Architectures
 
 | Architecture | Type | Parameters | Use Case |
 |-------------|------|-----------|----------|
@@ -1316,11 +1322,11 @@ dLLM extends its multimodal capabilities into the **audio and music production**
 | **AudioLM** | Transformer | 300M | Audio language modeling |
 | **Stable Audio** | Diffusion | 1.2B | High-fidelity audio generation |
 
-#### Music Generation Pipeline
+#### Planned Music Generation Pipeline
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  Music Generation Pipeline                   │
+│                  Music Generation Pipeline (Planned)         │
 ├─────────────────────────────────────────────────────────────┤
 │  Input: Text Prompt / MIDI / Audio Conditioning             │
 │       │                                                     │
@@ -1347,7 +1353,7 @@ dLLM extends its multimodal capabilities into the **audio and music production**
 └─────────────────────────────────────────────────────────────┘
 ```
 
-#### Music Generation API
+#### Planned Music Generation API (Design Only)
 
 ```python
 from backend_connector import BackendConnector
@@ -1418,7 +1424,7 @@ variation = connector.generate_music(
 variation.save("variation.wav")
 ```
 
-#### C++ Music Generation API
+#### Planned C++ Music Generation API (Design Only)
 
 ```cpp
 #include "audio/music_generator.h"
@@ -1454,22 +1460,24 @@ auto accompaniment = pipeline.generate_accompaniment(midi,
 accompaniment.save("jazz_accompaniment.wav");
 ```
 
-### Audio Synthesis
+### Audio Synthesis (🔲 Planned)
 
-#### Supported Synthesis Tasks
+> **Status**: No audio synthesis code exists. No `audio/synthesis.h` or `audio/audio_processor.h` files exist.
 
-| Task | Description | Performance |
-|------|-------------|-------------|
-| **Neural Waveform Generation** | Direct waveform synthesis from parameters | 500+ seconds/s (44.1kHz) |
-| **Additive Synthesis** | Harmonic component synthesis | 800+ partials/s |
-| **Subtractive Synthesis** | Filter-based sound design | 600+ oscillators/s |
-| **FM Synthesis** | Frequency modulation synthesis | 400+ operators/s |
-| **Granular Synthesis** | Grain-based texture synthesis | 2K+ grains/s |
-| **Physical Modeling** | Resonator / string / wind modeling | 300+ voices/s |
-| **Wavetable Synthesis** | Interpolated wavetable playback | 1K+ tables/s |
-| **Sample-Based Synthesis** | Neural sample manipulation | 200+ samples/s |
+#### Planned Synthesis Tasks
 
-#### Synthesis Model Architectures
+| Task | Description | Status |
+|------|-------------|--------|
+| **Neural Waveform Generation** | Direct waveform synthesis from parameters | 🔲 Planned |
+| **Additive Synthesis** | Harmonic component synthesis | 🔲 Planned |
+| **Subtractive Synthesis** | Filter-based sound design | 🔲 Planned |
+| **FM Synthesis** | Frequency modulation synthesis | 🔲 Planned |
+| **Granular Synthesis** | Grain-based texture synthesis | 🔲 Planned |
+| **Physical Modeling** | Resonator / string / wind modeling | 🔲 Planned |
+| **Wavetable Synthesis** | Interpolated wavetable playback | 🔲 Planned |
+| **Sample-Based Synthesis** | Neural sample manipulation | 🔲 Planned |
+
+#### Planned Synthesis Model Architectures
 
 | Architecture | Type | Parameters | Use Case |
 |-------------|------|-----------|----------|
@@ -1482,7 +1490,7 @@ accompaniment.save("jazz_accompaniment.wav");
 | **AudioLDM** | Latent Diffusion | 600M | Text-to-audio synthesis |
 | **Make-An-Audio** | Diffusion | 300M | Text-conditioned audio |
 
-#### Synthesis API
+#### Planned Synthesis API (Design Only)
 
 ```python
 from backend_connector import BackendConnector
@@ -1543,22 +1551,24 @@ audio = connector.synthesize(
 audio.save("fm_bell.wav")
 ```
 
-### Source Separation
+### Source Separation (🔲 Planned)
 
-#### Supported Separation Tasks
+> **Status**: No source separation code exists. No `audio/separation.h` or `audio/separation_models.h` files exist.
 
-| Task | Description | Performance |
-|------|-------------|-------------|
-| **Vocal/Instrumental Separation** | Isolate vocals from accompaniment | 350+ songs/s |
-| **Stem Separation (4-stem)** | Drums, bass, vocals, other | 280+ songs/s |
-| **Stem Separation (5-stem)** | Drums, bass, vocals, piano, other | 250+ songs/s |
-| **Drum Isolation** | Extract drum tracks from mix | 400+ songs/s |
-| **Bass Isolation** | Extract bass/guitar low-end | 380+ songs/s |
-| **Speech Enhancement** | Isolate speech from noise | 500+ utterances/s |
-| **Instrument Separation** | Isolate specific instruments | 200+ songs/s |
-| **Reverb Removal** | De-reverberation / dry/wet split | 450+ songs/s |
+#### Planned Separation Tasks
 
-#### Source Separation Model Architectures
+| Task | Description | Status |
+|------|-------------|--------|
+| **Vocal/Instrumental Separation** | Isolate vocals from accompaniment | 🔲 Planned |
+| **Stem Separation (4-stem)** | Drums, bass, vocals, other | 🔲 Planned |
+| **Stem Separation (5-stem)** | Drums, bass, vocals, piano, other | 🔲 Planned |
+| **Drum Isolation** | Extract drum tracks from mix | 🔲 Planned |
+| **Bass Isolation** | Extract bass/guitar low-end | 🔲 Planned |
+| **Speech Enhancement** | Isolate speech from noise | 🔲 Planned |
+| **Instrument Separation** | Isolate specific instruments | 🔲 Planned |
+| **Reverb Removal** | De-reverberation / dry/wet split | 🔲 Planned |
+
+#### Planned Source Separation Model Architectures
 
 | Architecture | Type | Parameters | Use Case |
 |-------------|------|-----------|----------|
@@ -1571,7 +1581,7 @@ audio.save("fm_bell.wav")
 | **BandSep** | Band-based | 25M | Frequency-band separation |
 | **Open-Unmix** | LSTM | 18M | Music source separation |
 
-#### Source Separation API
+#### Planned Source Separation API (Design Only)
 
 ```python
 from backend_connector import BackendConnector
@@ -1631,24 +1641,26 @@ wet = dry.reverb_component
 wet.save("reverb_only.wav")
 ```
 
-### Music Transcription
+### Music Transcription (🔲 Planned)
 
-#### Supported Transcription Tasks
+> **Status**: No music transcription code exists. No `audio/transcription.h` or `audio/transcription_models.h` files exist.
 
-| Task | Description | Performance |
-|------|-------------|-------------|
-| **MIDI Transcription** | Audio to MIDI note sequences | 120+ seconds/s |
-| **Chord Detection** | Harmonic chord recognition | 200+ chords/s |
-| **Tempo Estimation** | BPM detection | 500+ segments/s |
-| **Key Detection** | Musical key identification | 600+ segments/s |
-| **Note Detection** | Individual note onset/offset | 150+ notes/s |
-| **Bassline Transcription** | Bass note extraction | 180+ notes/s |
-| **Drum Transcription** | Drum hit detection & classification | 300+ hits/s |
-| **Lyrics Alignment** | Word-level time alignment | 250+ words/s |
-| **Scale Detection** | Musical scale identification | 400+ segments/s |
-| **Dynamic Analysis** | Loudness envelope extraction | 800+ segments/s |
+#### Planned Transcription Tasks
 
-#### Transcription Model Architectures
+| Task | Description | Status |
+|------|-------------|--------|
+| **MIDI Transcription** | Audio to MIDI note sequences | 🔲 Planned |
+| **Chord Detection** | Harmonic chord recognition | 🔲 Planned |
+| **Tempo Estimation** | BPM detection | 🔲 Planned |
+| **Key Detection** | Musical key identification | 🔲 Planned |
+| **Note Detection** | Individual note onset/offset | 🔲 Planned |
+| **Bassline Transcription** | Bass note extraction | 🔲 Planned |
+| **Drum Transcription** | Drum hit detection & classification | 🔲 Planned |
+| **Lyrics Alignment** | Word-level time alignment | 🔲 Planned |
+| **Scale Detection** | Musical scale identification | 🔲 Planned |
+| **Dynamic Analysis** | Loudness envelope extraction | 🔲 Planned |
+
+#### Planned Transcription Model Architectures
 
 | Architecture | Type | Parameters | Use Case |
 |-------------|------|-----------|----------|
@@ -1661,7 +1673,7 @@ wet.save("reverb_only.wav")
 | **CREPE** | CNN | 1.5M | Pitch estimation |
 | **PanFlute** | CNN | 4M | Polyphonic pitch estimation |
 
-#### Transcription API
+#### Planned Transcription API (Design Only)
 
 ```python
 from backend_connector import BackendConnector
@@ -1720,24 +1732,26 @@ pitch = connector.transcribe(
 pitch.save("pitch_contour.csv")
 ```
 
-### Audio Enhancement
+### Audio Enhancement (🔲 Planned)
 
-#### Supported Enhancement Tasks
+> **Status**: No audio enhancement code exists. No `audio/enhancement.h` or `audio/enhancement_models.h` files exist.
 
-| Task | Description | Performance |
-|------|-------------|-------------|
-| **Noise Reduction** | Remove background noise | 600+ seconds/s |
-| **De-reverberation** | Remove room reverb | 500+ seconds/s |
-| **De-clicking** | Remove clicks and pops | 700+ seconds/s |
-| **De-crackling** | Remove crackle/hiss | 650+ seconds/s |
-| **De-noising (speech)** | Speech-specific noise removal | 800+ seconds/s |
-| **De-warping** | Remove wow/flutter | 400+ seconds/s |
-| **Upmixing** | Stereo → surround / mono → stereo | 900+ seconds/s |
-| **Super-resolution** | Low-quality → high-quality audio | 300+ seconds/s |
-| **Bandwidth Extension** | Narrowband → wideband audio | 550+ seconds/s |
-| **Loudness Normalization** | LUFS-based normalization | 1K+ seconds/s |
+#### Planned Enhancement Tasks
 
-#### Enhancement Model Architectures
+| Task | Description | Status |
+|------|-------------|--------|
+| **Noise Reduction** | Remove background noise | 🔲 Planned |
+| **De-reverberation** | Remove room reverb | 🔲 Planned |
+| **De-clicking** | Remove clicks and pops | 🔲 Planned |
+| **De-crackling** | Remove crackle/hiss | 🔲 Planned |
+| **De-noising (speech)** | Speech-specific noise removal | 🔲 Planned |
+| **De-warping** | Remove wow/flutter | 🔲 Planned |
+| **Upmixing** | Stereo → surround / mono → stereo | 🔲 Planned |
+| **Super-resolution** | Low-quality → high-quality audio | 🔲 Planned |
+| **Bandwidth Extension** | Narrowband → wideband audio | 🔲 Planned |
+| **Loudness Normalization** | LUFS-based normalization | 🔲 Planned |
+
+#### Planned Enhancement Model Architectures
 
 | Architecture | Type | Parameters | Use Case |
 |-------------|------|-----------|----------|
@@ -1750,7 +1764,7 @@ pitch.save("pitch_contour.csv")
 | **SpectralSub** | Spectral subtraction | 0.1M | Fast noise reduction |
 | **FullSubNet** | Sub-band CNN | 10M | Full-band speech enhancement |
 
-#### Enhancement API
+#### Planned Enhancement API (Design Only)
 
 ```python
 from backend_connector import BackendConnector
@@ -1814,24 +1828,26 @@ normalized = connector.enhance(
 normalized.save("normalized_master.wav")
 ```
 
-### Spatial Audio
+### Spatial Audio (🔲 Planned)
 
-#### Supported Spatial Audio Tasks
+> **Status**: No spatial audio code exists. No `audio/spatial.h` or `audio/hrtf.h` files exist.
 
-| Task | Description | Performance |
-|------|-------------|-------------|
-| **Binaural Rendering** | Stereo simulation of 3D sound | 1K+ sources/s |
-| **Ambisonics Encoding** | First-to-nth order ambisonics | 800+ sources/s |
-| **Ambisonics Decoding** | Decode ambisonics to speakers/headphones | 900+ channels/s |
-| **Object-Based Audio** | Position-based audio mixing | 500+ objects/s |
-| **HRTF Processing** | Head-related transfer function | 1.2K+ sources/s |
-| **Room Acoustics** | Virtual room simulation | 600+ rooms/s |
-| **Dolby Atmos** | Atmos object/bed mixing | 400+ objects/s |
-| **DTS:X** | DTS:X object mixing | 350+ objects/s |
-| **Wave Field Synthesis** | Multi-speaker array synthesis | 200+ speakers/s |
-| **B-Format Recording** | B-format microphone simulation | 700+ mics/s |
+#### Planned Spatial Audio Tasks
 
-#### Spatial Audio Model Architectures
+| Task | Description | Status |
+|------|-------------|--------|
+| **Binaural Rendering** | Stereo simulation of 3D sound | 🔲 Planned |
+| **Ambisonics Encoding** | First-to-nth order ambisonics | 🔲 Planned |
+| **Ambisonics Decoding** | Decode ambisonics to speakers/headphones | 🔲 Planned |
+| **Object-Based Audio** | Position-based audio mixing | 🔲 Planned |
+| **HRTF Processing** | Head-related transfer function | 🔲 Planned |
+| **Room Acoustics** | Virtual room simulation | 🔲 Planned |
+| **Dolby Atmos** | Atmos object/bed mixing | 🔲 Planned |
+| **DTS:X** | DTS:X object mixing | 🔲 Planned |
+| **Wave Field Synthesis** | Multi-speaker array synthesis | 🔲 Planned |
+| **B-Format Recording** | B-format microphone simulation | 🔲 Planned |
+
+#### Planned Spatial Audio Model Architectures
 
 | Architecture | Type | Parameters | Use Case |
 |-------------|------|-----------|----------|
@@ -1842,7 +1858,7 @@ normalized.save("normalized_master.wav")
 | **DiffRIR** | Diffusion | 15M | Room acoustics generation |
 | **MetaHeadphone** | Neural | 3M | Headphone-based spatial audio |
 
-#### Spatial Audio API
+#### Planned Spatial Audio API (Design Only)
 
 ```python
 from backend_connector import BackendConnector
@@ -1901,22 +1917,24 @@ atmos = connector.spatialize(
 atmos.save("atmos_mix.atmos")
 ```
 
-### Voice & Speech AI
+### Voice & Speech AI (🔲 Planned)
 
-#### Supported Voice Tasks
+> **Status**: No voice/speech AI code exists. No `audio/voice.h` or `audio/tts.h` files exist.
 
-| Task | Description | Performance |
-|------|-------------|-------------|
-| **Text-to-Speech (TTS)** | Natural speech synthesis | 80+ seconds/s (real-time factor 0.3×) |
-| **Voice Cloning** | Clone voice from short sample | 60+ seconds/s |
-| **Emotion Transfer** | Transfer emotional expression | 100+ seconds/s |
-| **Speech Enhancement** | Improve speech quality | 900+ seconds/s |
-| **Voice Conversion** | Change speaker identity | 120+ seconds/s |
-| **Singing Synthesis** | Neural singing voice | 50+ seconds/s |
-| **Speaker Diarization** | Who spoke when | 300+ hours/s |
-| **Language Identification** | Detect spoken language | 2K+ utterances/s |
+#### Planned Voice Tasks
 
-#### Voice Model Architectures
+| Task | Description | Status |
+|------|-------------|--------|
+| **Text-to-Speech (TTS)** | Natural speech synthesis | 🔲 Planned |
+| **Voice Cloning** | Clone voice from short sample | 🔲 Planned |
+| **Emotion Transfer** | Transfer emotional expression | 🔲 Planned |
+| **Speech Enhancement** | Improve speech quality | 🔲 Planned |
+| **Voice Conversion** | Change speaker identity | 🔲 Planned |
+| **Singing Synthesis** | Neural singing voice | 🔲 Planned |
+| **Speaker Diarization** | Who spoke when | 🔲 Planned |
+| **Language Identification** | Detect spoken language | 🔲 Planned |
+
+#### Planned Voice Model Architectures
 
 | Architecture | Type | Parameters | Use Case |
 |-------------|------|-----------|----------|
@@ -1929,7 +1947,7 @@ atmos.save("atmos_mix.atmos")
 | **RVC** | Residual VC | 8M | Real-time voice conversion |
 | **OpenVoice** | Controllable TTS | 30M | Voice style control |
 
-#### Voice API
+#### Planned Voice API (Design Only)
 
 ```python
 from backend_connector import BackendConnector
@@ -1982,24 +2000,26 @@ audio = connector.synthesize_speech(
 audio.save("singing.wav")
 ```
 
-### Audio Analysis
+### Audio Analysis (🔲 Planned)
 
-#### Supported Analysis Tasks
+> **Status**: No audio analysis code exists. No `audio/analysis.h` or `audio/analysis_models.h` files exist.
 
-| Task | Description | Performance |
-|------|-------------|-------------|
-| **Genre Classification** | Music genre identification | 1K+ tracks/s |
-| **Mood Detection** | Emotional mood classification | 1.2K+ tracks/s |
-| **Loudness Analysis** | LUFS, true peak, dynamic range | 2K+ seconds/s |
-| **Spectral Analysis** | Frequency content characterization | 1.5K+ seconds/s |
-| **Energy Detection** | Audio energy envelope | 3K+ seconds/s |
-| **Onset Detection** | Note/sound onset timing | 800+ onsets/s |
-| **Beat Tracking** | Rhythmic beat estimation | 900+ beats/s |
-| **Structural Analysis** | Song structure segmentation | 500+ tracks/s |
-| **Instrument Recognition** | Identify instruments in mix | 400+ tracks/s |
-| **Audio Fingerprinting** | Perceptual hashing for matching | 5K+ tracks/s |
+#### Planned Analysis Tasks
 
-#### Analysis Model Architectures
+| Task | Description | Status |
+|------|-------------|--------|
+| **Genre Classification** | Music genre identification | 🔲 Planned |
+| **Mood Detection** | Emotional mood classification | 🔲 Planned |
+| **Loudness Analysis** | LUFS, true peak, dynamic range | 🔲 Planned |
+| **Spectral Analysis** | Frequency content characterization | 🔲 Planned |
+| **Energy Detection** | Audio energy envelope | 🔲 Planned |
+| **Onset Detection** | Note/sound onset timing | 🔲 Planned |
+| **Beat Tracking** | Rhythmic beat estimation | 🔲 Planned |
+| **Structural Analysis** | Song structure segmentation | 🔲 Planned |
+| **Instrument Recognition** | Identify instruments in mix | 🔲 Planned |
+| **Audio Fingerprinting** | Perceptual hashing for matching | 🔲 Planned |
+
+#### Planned Analysis Model Architectures
 
 | Architecture | Type | Parameters | Use Case |
 |-------------|------|-----------|----------|
@@ -2012,7 +2032,7 @@ audio.save("singing.wav")
 | **ChromaNet** | CNN | 2M | Chroma feature extraction |
 | **MusicFM** | Transformer | 100M | Music understanding |
 
-#### Analysis API
+#### Planned Analysis API (Design Only)
 
 ```python
 from backend_connector import BackendConnector
@@ -2080,24 +2100,26 @@ for section in structure.sections:
     print(f"  [{section.type}] {section.start:.1f}s - {section.end:.1f}s")
 ```
 
-### Cross-Modal Audio Features
+### Cross-Modal Audio Features (🔲 Planned)
 
-#### Audio Cross-Modal Tasks
+> **Status**: No cross-modal audio code exists. No `audio/cross_modal.h` files exist.
 
-| Cross-Modal Task | Description | Example |
-|-----------------|-------------|---------|
-| **Text → Music** | Generate music from text prompts | "Epic orchestral battle music" → audio |
-| **Text → Speech** | Natural language to speech | "Hello world" → spoken audio |
-| **Audio → Text** | Transcribe speech or describe music | Audio → lyrics/transcription |
-| **Audio → Image** | Generate cover art from audio | Song → album artwork |
-| **Audio → Video** | Generate music videos | Song → visual accompaniment |
-| **Audio → MIDI** | Audio to MIDI conversion | Recording → editable MIDI |
-| **MIDI → Audio** | MIDI to realistic audio | MIDI → performed audio |
-| **Music → Emotion** | Detect emotion from music | Audio → emotional profile |
-| **Video → Audio** | Generate audio from video | Silent video → sound effects |
-| **3D → Audio** | Spatial audio from 3D scene | 3D model → room acoustics |
+#### Planned Audio Cross-Modal Tasks
 
-#### Unified Audio API
+| Cross-Modal Task | Description | Status |
+|-----------------|-------------|--------|
+| **Text → Music** | Generate music from text prompts | 🔲 Planned |
+| **Text → Speech** | Natural language to speech | 🔲 Planned |
+| **Audio → Text** | Transcribe speech or describe music | 🔲 Planned |
+| **Audio → Image** | Generate cover art from audio | 🔲 Planned |
+| **Audio → Video** | Generate music videos | 🔲 Planned |
+| **Audio → MIDI** | Audio to MIDI conversion | 🔲 Planned |
+| **MIDI → Audio** | MIDI to realistic audio | 🔲 Planned |
+| **Music → Emotion** | Detect emotion from music | 🔲 Planned |
+| **Video → Audio** | Generate audio from video | 🔲 Planned |
+| **3D → Audio** | Spatial audio from 3D scene | 🔲 Planned |
+
+#### Planned Unified Audio API (Design Only)
 
 ```python
 from backend_connector import BackendConnector
@@ -2152,11 +2174,15 @@ midi = connector.predict(
 midi.save("transcribed.mid")
 ```
 
-### Audio Processing Pipeline
+### Audio Processing Pipeline (🔲 Planned)
+
+> **Status**: No audio processing pipeline code exists. No `audio/pipeline.h` file exists.
+
+#### Planned Audio Processing Pipeline Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│              Audio Processing Pipeline                        │
+│              Audio Processing Pipeline (Planned)              │
 ├─────────────────────────────────────────────────────────────┤
 │  Input Audio (WAV/FLAC/MP3/AIFF/MIDI)                        │
 │       │                                                     │
@@ -2189,9 +2215,11 @@ midi.save("transcribed.mid")
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Hardware Acceleration for Audio
+### Hardware Acceleration for Audio (🔲 Planned)
 
-#### GPU Offloading for Audio Tasks
+> **Status**: No hardware acceleration code for audio exists. No `audio/hardware.h` or `audio/gpu_offload.h` files exist.
+
+#### Planned GPU Offloading for Audio Tasks
 
 | Task | CPU (AVX-512) | GPU (CUDA) | GPU (ROCm) | GPU (SYCL) |
 |------|:-------------:|:----------:|:----------:|:----------:|
@@ -2203,7 +2231,7 @@ midi.save("transcribed.mid")
 | Audio Analysis | 1K trk/s | 4K trk/s | 3.8K trk/s | 3.5K trk/s |
 | MIDI Transcription | 120 s/s | 480 s/s | 450 s/s | 420 s/s |
 
-#### CPU SIMD Optimization for Audio
+#### Planned CPU SIMD Optimization for Audio
 
 | Operation | SSE4.2 | AVX | AVX2 | AVX-512 |
 |-----------|--------|-----|------|---------|
@@ -2215,7 +2243,11 @@ midi.save("transcribed.mid")
 | Spectrogram computation | 1.0x | 2.2x | 2.5x | 5.0x |
 | MP3/FLAC decode | 1.0x | 1.8x | 1.9x | 3.9x |
 
-### Audio Configuration
+### Audio Configuration (🔲 Planned)
+
+> **Status**: No audio configuration code exists. No `audio/config.h` file exists.
+
+#### Planned Audio Configuration (Design Only)
 
 ```yaml
 audio:
@@ -2295,9 +2327,11 @@ audio:
     simd_optimization: true
 ```
 
-### Performance Benchmarks
+### Performance Benchmarks (🔲 Planned)
 
-#### Music Generation
+> **Status**: No performance benchmarks exist for audio features. No audio code exists.
+
+#### Planned Music Generation Benchmarks
 
 | Model | Duration | CPU (AVX-512) | GPU (CUDA) | Speedup |
 |-------|:--------:|:-------------:|:----------:|:-------:|
@@ -2307,7 +2341,7 @@ audio:
 | Diffusion-LM (300M) | 10s | 2.1s | 0.4s | **5.3×** |
 | Stable Audio (1.2B) | 10s | 4.5s | 0.85s | **5.3×** |
 
-#### Source Separation
+#### Planned Source Separation Benchmarks
 
 | Model | Input Length | CPU (AVX-512) | GPU (CUDA) | Speedup |
 |-------|:------------:|:-------------:|:----------:|:-------:|
@@ -2317,7 +2351,7 @@ audio:
 | MDX-Net (30M) | 3 min | 1.5s | 0.28s | **5.4×** |
 | SepFormer (50M) | 3 min | 2.1s | 0.4s | **5.3×** |
 
-#### Voice & Speech
+#### Planned Voice & Speech Benchmarks
 
 | Model | Text Length | CPU (AVX-512) | GPU (CUDA) | Speedup |
 |-------|:-----------:|:-------------:|:----------:|:-------:|
@@ -2327,7 +2361,7 @@ audio:
 | CosyVoice (80M) | 100 words | 1.5s | 0.3s | **5.0×** |
 | SoVITS (60M) | 100 words | 1.8s | 0.35s | **5.1×** |
 
-#### Audio Enhancement
+#### Planned Audio Enhancement Benchmarks
 
 | Model | Input Length | CPU (AVX-512) | GPU (CUDA) | Speedup |
 |-------|:------------:|:-------------:|:----------:|:-------:|
@@ -2336,7 +2370,7 @@ audio:
 | Conv-TasNet (8M) | 10s | 0.018s | 0.0035s | **5.1×** |
 | DCCRN (6M) | 10s | 0.012s | 0.0025s | **4.8×** |
 
-#### Audio Analysis
+#### Planned Audio Analysis Benchmarks
 
 | Model | Input Length | CPU (AVX-512) | GPU (CUDA) | Speedup |
 |-------|:------------:|:-------------:|:----------:|:-------:|
@@ -2349,17 +2383,24 @@ audio:
 
 | Feature | SSE4.2 | AVX | AVX2 | AVX-512 | GPU |
 |---------|:------:|:---:|:----:|:-------:|:---:|
-| Image preprocessing | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Image classification | ✗ | ✓ | ✓ | ✓ | ✓ |
-| Object detection | ✗ | ✓ | ✓ | ✓ | ✓ |
-| Image generation | ✗ | ✗ | ✗ | ✓ | ✓ |
-| 3D point cloud ops | ✗ | ✓ | ✓ | ✓ | ✓ |
-| 3D mesh processing | ✗ | ✓ | ✓ | ✓ | ✓ |
-| 3D generation | ✗ | ✗ | ✗ | ✓ | ✓ |
-| Video frame extraction | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Video action recognition | ✗ | ✓ | ✓ | ✓ | ✓ |
-| Video generation | ✗ | ✗ | ✗ | ✓ | ✓ |
-| Cross-modal reasoning | ✗ | ✗ | ✓ | ✓ | ✓ |
+| Image preprocessing | ✓ | ✓ | ✓ | ✓ | 🔲 Planned |
+| Image classification | ✗ | ✓ | ✓ | ✓ | 🔲 Planned |
+| Object detection | ✗ | ✓ | ✓ | ✓ | 🔲 Planned |
+| Image generation | ✗ | ✗ | ✗ | ✓ | 🔲 Planned |
+| 3D point cloud ops | ✗ | ✓ | ✓ | ✓ | 🔲 Planned |
+| 3D mesh processing | ✗ | ✓ | ✓ | ✓ | 🔲 Planned |
+| 3D generation | ✗ | ✗ | ✗ | ✓ | 🔲 Planned |
+| Video frame extraction | ✓ | ✓ | ✓ | ✓ | 🔲 Planned |
+| Video action recognition | ✗ | ✓ | ✓ | ✓ | 🔲 Planned |
+| Video generation | ✗ | ✗ | ✗ | ✓ | 🔲 Planned |
+| Cross-modal reasoning | ✗ | ✗ | ✓ | ✓ | 🔲 Planned |
+| Audio synthesis | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned |
+| Audio source separation | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned |
+| Audio transcription | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned |
+| Audio enhancement | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned |
+| Spatial audio | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned |
+| Voice & speech AI | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned |
+| Audio analysis | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned | 🔲 Planned |
 
 ### Documentation
 
@@ -2374,7 +2415,7 @@ audio:
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://localhost:8000/v1",
+    base_url="http://localhost:8000/api/v1",
     api_key="dummy"
 )
 

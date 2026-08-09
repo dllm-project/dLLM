@@ -1,16 +1,18 @@
-# Video Inference
+# Video Inference (🔲 Planned)
+
+> **Status**: No video processing code exists in the codebase. This is a planned feature for a future release.
 
 ## Overview
 
-dLLM provides high-performance video inference capabilities for action recognition, captioning, temporal detection, generation, frame interpolation, summarization, optical flow, and visual question answering. The video processing pipeline leverages distributed CPU SIMD compute and multi-vendor GPU acceleration to handle complex temporal workloads efficiently.
+dLLM plans to provide high-performance video inference capabilities for action recognition, captioning, temporal detection, generation, frame interpolation, summarization, optical flow, and visual question answering. The video processing pipeline would leverage distributed CPU SIMD compute and multi-vendor GPU acceleration to handle complex temporal workloads efficiently.
 
-## Supported Tasks
+## Supported Tasks (🔲 Planned)
 
-### Action Recognition
+### Action Recognition (🔲 Planned)
+
+> **Status**: No action recognition code exists. This is a design-only feature.
 
 Classify actions and activities in video sequences.
-
-**Performance**: 8K+ videos/s (AVX-512), 30K+ videos/s (CUDA)
 
 | Model | Parameters | Kinetics Accuracy | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|-------------------|---------------------|---------------------|
@@ -21,11 +23,11 @@ Classify actions and activities in video sequences.
 | SlowFast-X101 | 170M | 81.9% | 135ms | 30ms |
 | R(2+1)D-152 | 60M | 78.5% | 92ms | 21ms |
 
-### Video Captioning
+### Video Captioning (🔲 Planned)
+
+> **Status**: No video captioning code exists. This is a design-only feature.
 
 Generate natural language descriptions of video content.
-
-**Performance**: 3K+ videos/s (AVX-512), 12K+ videos/s (CUDA)
 
 | Model | Parameters | CIDEr | SPICE | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|-------|-------|---------------------|---------------------|
@@ -35,11 +37,11 @@ Generate natural language descriptions of video content.
 | Video-ChatGPT | 6.7B | 119.1 | 26.5 | 2.9s | 0.65s |
 | ShareGPT-4Video | 7B | 120.3 | 27.1 | 3.1s | 0.7s |
 
-### Temporal Action Detection
+### Temporal Action Detection (🔲 Planned)
+
+> **Status**: No temporal action detection code exists. This is a design-only feature.
 
 Locate and classify actions within video timelines.
-
-**Performance**: 5K+ videos/s (AVX-512), 20K+ videos/s (CUDA)
 
 | Model | Parameters | mAP@0.5 | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|---------|---------------------|---------------------|
@@ -49,11 +51,11 @@ Locate and classify actions within video timelines.
 | SlowFast-Det | 170M | 46.2 | 225ms | 52ms |
 | VideoMAE-Det | 300M | 47.5 | 245ms | 56ms |
 
-### Video Generation
+### Video Generation (🔲 Planned)
+
+> **Status**: No video generation code exists. This is a design-only feature.
 
 Text-to-video synthesis and video editing.
-
-**Performance**: 1K+ videos/s (AVX-512), 4K+ videos/s (CUDA) for 256×256
 
 | Model | Parameters | FVD | Generation Time (CPU) | Generation Time (GPU) |
 |-------|-----------|-----|---------------------|---------------------|
@@ -63,11 +65,11 @@ Text-to-video synthesis and video editing.
 | AnimateDiff | 860M | 195.1 | 8s | 1.7s |
 | Pika (compatible) | 3B | 158.3 | 14s | 3.0s |
 
-### Frame Interpolation
+### Frame Interpolation (🔲 Planned)
+
+> **Status**: No frame interpolation code exists. This is a design-only feature.
 
 Generate intermediate frames between existing frames.
-
-**Performance**: 6K+ frames/s (AVX-512), 22K+ frames/s (CUDA)
 
 | Model | Parameters | PSNR | SSIM | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|------|------|---------------------|---------------------|
@@ -77,11 +79,11 @@ Generate intermediate frames between existing frames.
 | TOFlow | 10M | 31.5 dB | 0.90 | 22ms | 5ms |
 | SepConv | 6M | 30.8 dB | 0.89 | 15ms | 3.5ms |
 
-### Video Summarization
+### Video Summarization (🔲 Planned)
+
+> **Status**: No video summarization code exists. This is a design-only feature.
 
 Extract key frames and generate video summaries.
-
-**Performance**: 4K+ videos/s (AVX-512), 15K+ videos/s (CUDA)
 
 | Model | Parameters | F1 Score | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|----------|---------------------|---------------------|
@@ -90,11 +92,11 @@ Extract key frames and generate video summaries.
 | SumFormer | 65M | 0.81 | 95ms | 20ms |
 | TransSum | 45M | 0.79 | 80ms | 17ms |
 
-### Optical Flow
+### Optical Flow (🔲 Planned)
+
+> **Status**: No optical flow code exists. This is a design-only feature.
 
 Estimate pixel motion between consecutive frames.
-
-**Performance**: 7K+ frames/s (AVX-512), 25K+ frames/s (CUDA)
 
 | Model | Parameters | EPE | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|-----|---------------------|---------------------|
@@ -104,11 +106,11 @@ Estimate pixel motion between consecutive frames.
 | LiteFlowNet | 3M | 2.52 | 22ms | 5ms |
 | FlowNetS | 15M | 2.40 | 42ms | 9ms |
 
-### Video Question Answering
+### Video Question Answering (🔲 Planned)
+
+> **Status**: No video QA code exists. This is a design-only feature.
 
 Answer questions about video content and events.
-
-**Performance**: 2K+ videos/s (AVX-512), 8K+ videos/s (CUDA)
 
 | Model | Parameters | Accuracy | Inference Time (CPU) | Inference Time (GPU) |
 |-------|-----------|----------|---------------------|---------------------|
@@ -117,15 +119,15 @@ Answer questions about video content and events.
 | LLaVA-Video | 13B | 60.5% | 4.1s | 0.9s |
 | Video-ChatGPT | 6.7B | 57.5% | 3.1s | 0.68s |
 
-## Supported Video Formats
+## Planned Video Formats
 
 | Format | Extension | Description | Status |
 |--------|-----------|-------------|--------|
-| **MP4** | `.mp4` | MPEG-4 Part 14 — most common video format | ✓ Supported |
-| **AVI** | `.avi` | Audio Video Interleave — legacy format | ✓ Supported |
-| **MKV** | `.mkv` | Matroska — container with multiple streams | ✓ Supported |
-| **WebM** | `.webm` | WebM — web-optimized video | ✓ Supported |
-| **MOV** | `.mov` | QuickTime — Apple format | ✓ Supported |
+| **MP4** | `.mp4` | MPEG-4 Part 14 — most common video format | 🔲 Planned |
+| **AVI** | `.avi` | Audio Video Interleave — legacy format | 🔲 Planned |
+| **MKV** | `.mkv` | Matroska — container with multiple streams | 🔲 Planned |
+| **WebM** | `.webm` | WebM — web-optimized video | 🔲 Planned |
+| **MOV** | `.mov` | QuickTime — Apple format | 🔲 Planned |
 
 ## Video Processing Pipeline
 
@@ -190,7 +192,7 @@ All video decoding operations are SIMD-accelerated:
 | Frame normalization | 1.0x | 2.0x | 2.1x | 4.2x |
 | Temporal sampling | 1.0x | 2.0x | 2.2x | 4.4x |
 
-### Supported Video Encoders
+### Planned Video Encoders
 
 | Encoder | Type | Parameters | Temporal Modeling | Use Case |
 |---------|------|-----------|-------------------|----------|
@@ -456,9 +458,9 @@ auto flow = flow_pipeline.compute_flow(video);
 flow.save("optical_flow.mp4");
 ```
 
-## Configuration
+## Configuration (Design)
 
-### YAML Configuration
+### YAML Configuration (Design)
 
 ```yaml
 video:
@@ -549,11 +551,11 @@ video:
       min_duration: 0.5
 ```
 
-## Performance Optimization
+## Performance Optimization (Design)
 
-### SIMD Acceleration
+### SIMD Acceleration (Design)
 
-All video processing operations leverage SIMD instructions:
+All video processing operations would leverage SIMD instructions:
 
 | Operation | SSE4.2 | AVX | AVX2 | AVX-512 |
 |-----------|--------|-----|------|---------|
@@ -585,9 +587,9 @@ distributed:
 - **Lazy frame loading**: Load frames on demand
 - **Quantized weights**: INT8/INT4 for reduced memory footprint
 
-## Troubleshooting
+## Troubleshooting (Design)
 
-### Common Issues
+### Common Issues (Design)
 
 **Issue**: Out of memory for long videos
 
